@@ -1,1 +1,1 @@
-A simple node.js project, developed by a junior node.js developer
+A simple node.js project, developed by a junior node.js developer.
