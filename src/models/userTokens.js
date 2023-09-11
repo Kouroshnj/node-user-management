@@ -18,7 +18,7 @@ const tokenSchema = new mongoose.Schema({
 })
 
 tokenSchema.statics.CreateToken = async function (token, _id) {
-    const userToken = new Tokens({
+    const userToken = new userTokens({
         token: token,
         owner: _id
     })
@@ -27,6 +27,6 @@ tokenSchema.statics.CreateToken = async function (token, _id) {
 }
 
 
-const Tokens = mongoose.model("Tokens", tokenSchema)
+const userTokens = mongoose.model("userTokens", tokenSchema)
 
-module.exports = Tokens
+module.exports = userTokens

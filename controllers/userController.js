@@ -1,15 +1,15 @@
 const upload = require("../middleware/upload");
-const User = require("../src/models/users")
-const Tokens = require("../src/models/userTokens")
+const userModel = require("../src/models/users")
+const userTokens = require("../src/models/userTokens")
 const fs = require("fs")
 const path = require("path")
 
 exports.Signup = async (req, res) => {
     try {
-        const user = new User(req.body);
+        const user = new userModel(req.body);
         const token = await user.generateAuthToken()
         await user.save()
-        const userToken = await Tokens.CreateToken(token, user._id)
+        const userToken = await userTokens.CreateToken(token, user._id)
         await userToken.save()
         return res.status(201).send({ user, token })
     } catch (e) {
@@ -19,9 +19,9 @@ exports.Signup = async (req, res) => {
 
 exports.Login = async (req, res) => {
     try {
-        const user = await User.findUserByInfo(req.body.email, req.body.password)
+        const user = await userModel.findUserByInfo(req.body.email, req.body.password)
         const token = await user.generateAuthToken()
-        const userToken = await Tokens.CreateToken(token, user._id)
+        const userToken = await userTokens.CreateToken(token, user._id)
         await userToken.save()
         res.status(201).send({ user, token })
     } catch (e) {
@@ -31,7 +31,7 @@ exports.Login = async (req, res) => {
 
 exports.Logout = async (req, res) => {
     try {
-        await Tokens.deleteOne({ token: req.token })
+        await userTokens.deleteOne({ token: req.token })
         res.status(201).send("Successful")
     } catch (e) {
         res.status(404).send({ error: e })
@@ -71,7 +71,7 @@ exports.updateUser = async (req, res) => {
 
 exports.changePassword = async (req, res) => {
     try {
-        const user = await User.findUserByInfo(req.body.email, req.body.password)
+        const user = await userModel.findUserByInfo(req.body.email, req.body.password)
         user.password = req.body.newPassword
         await user.save()
         res.status(201).send({ message: "Password successfuly changed" })
@@ -95,7 +95,7 @@ exports.deleteImage = async (req, res) => {
 exports.getImage = async (req, res) => {
     try {
         // root = process.cwd() , "avatars" , user.avatar
-        const user = await User.findById(req.params.id)
+        const user = await userModel.findById(req.params.id)
         const root = path.resolve(process.cwd(), "avatars", user.avatar)
 
 
