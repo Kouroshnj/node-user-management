@@ -1,6 +1,5 @@
 const express = require("express")
 require("./src/db/mongoose")
-const Tokens = require("./src/models/userTokens")
 
 
 const userRouter = require("./routes/userRouter")
