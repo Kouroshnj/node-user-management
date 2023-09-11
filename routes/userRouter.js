@@ -12,15 +12,11 @@ router.post("/users/Login", userController.Login)
 
 router.post("/users/Logout", auth, userController.Logout)
 
-router.get("/users/me", auth, userController.userInfo)
-
-router.patch("/users/me", auth, userController.updateUser)
+router.route("/users/me").get(auth, userController.userInfo).patch(auth, userController.updateUser)
 
 router.post("/users/me/changePassword", auth, userController.changePassword)
 
-router.post("/users/me/image", auth, upload.single("avatar"), userController.setImage)
-
-router.delete("/users/me/image", auth, userController.deleteImage)
+router.route("/users/me/image").post(auth, upload.single("avatar"), userController.setImage).delete(auth, userController.deleteImage)
 
 router.get("/users/:id/avatar", auth, userController.getImage)
 
