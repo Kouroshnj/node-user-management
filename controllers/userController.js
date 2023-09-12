@@ -1,6 +1,7 @@
 const upload = require("../middleware/upload");
 const userModel = require("../src/models/users")
 const userTokens = require("../src/models/userTokens")
+const errorMessages = require("../src/errorMessage")
 const fs = require("fs")
 const path = require("path")
 
@@ -32,7 +33,7 @@ exports.Login = async (req, res) => {
 exports.Logout = async (req, res) => {
     try {
         await userTokens.deleteOne({ token: req.token })
-        res.status(201).send("Successful")
+        res.status(201).send({ message: errorMessages.User_Log_Out })
     } catch (e) {
         res.status(404).send({ error: e })
     }
@@ -50,7 +51,7 @@ exports.updateUser = async (req, res) => {
     })
 
     if (!isValid) {
-        return res.status(400).send({ error: "Unable to update" })
+        return res.status(400).send({ message: errorMessages.Update_Error })
     }
 
     try {
@@ -74,7 +75,7 @@ exports.changePassword = async (req, res) => {
         const user = await userModel.findUserByInfo(req.body.email, req.body.password)
         user.password = req.body.newPassword
         await user.save()
-        res.status(201).send({ message: "Password successfuly changed" })
+        res.status(201).send({ message: errorMessages.Change_Password })
     } catch (e) {
         res.status(401).send({ message: e.message })
     }
@@ -83,13 +84,13 @@ exports.changePassword = async (req, res) => {
 exports.setImage = async (req, res) => {
     req.user.avatar = req.file.originalname
     await req.user.save()
-    res.status(201).send({ message: "Image sets successfuly" })
+    res.status(201).send({ message: errorMessages.Set_Image })
 }
 
 exports.deleteImage = async (req, res) => {
     req.user.avatar = undefined
     await req.user.save()
-    res.status(201).send({ message: "Image successfuly deleted" })
+    res.status(201).send({ message: errorMessages.Delete_Image })
 }
 
 exports.getImage = async (req, res) => {
@@ -100,7 +101,7 @@ exports.getImage = async (req, res) => {
 
 
         if (!user || !user.avatar) {
-            throw new Error("User image unavailable.")
+            throw new Error(errorMessages.Unavailable_Image)
         }
 
 

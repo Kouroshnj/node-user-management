@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const userModel = require("../src/models/users")
 const userTokens = require("../src/models/userTokens")
+const errorMessages = require("../src/errorMessage")
 require("dotenv").config()
 
 
@@ -13,11 +14,11 @@ const auth = async function (req, res, next) {
         const userToken = await userTokens.findOne({ owner: user._id })
 
         if (!userToken) {
-            res.status(404).send("Unable to find user")
+            res.status(404).send(errorMessages.User_Not_Found)
         }
 
         if (!user) {
-            res.status(404).send("User not found")
+            res.status(404).send(errorMessages.User_Not_Found)
         }
         req.token = token
         req.user = user
