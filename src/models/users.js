@@ -1,4 +1,6 @@
 const mongoose = require("mongoose")
+const path = require("path")
+require("dotenv").config()
 const validator = require("validator")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
@@ -100,7 +102,7 @@ userSchema.methods.toJSON = function () {
 }
 
 userSchema.statics.findUserByInfo = async function (email, password) {
-    const user = await User.findOne({ email: email })
+    const user = await userModel.findOne({ email: email })
 
     if (!user) {
         throw new Error("User not found")
@@ -117,7 +119,8 @@ userSchema.statics.findUserByInfo = async function (email, password) {
 
 userSchema.methods.generateAuthToken = async function () {
     const user = this
-    const token = jwt.sign({ _id: user._id.toString() }, "thisismynodeproject")
+
+    const token = jwt.sign({ _id: user._id.toString() }, process.env.SECRET_KEY)
     return token
 }
 

@@ -1,14 +1,16 @@
 const jwt = require("jsonwebtoken");
-const User = require("../src/models/users")
-const Tokens = require("../src/models/userTokens")
+const userModel = require("../src/models/users")
+const userTokens = require("../src/models/userTokens")
+require("dotenv").config()
+
 
 
 const auth = async function (req, res, next) {
     try {
         const token = await req.header("Authorization").replace("Bearer ", "");
-        const verification = jwt.verify(token, "thisismynodeproject")
-        const user = await User.findOne({ _id: verification._id })
-        const userToken = await Tokens.findOne({ owner: user._id })
+        const verification = jwt.verify(token, process.env.SECRET_KEY)
+        const user = await userModel.findOne({ _id: verification._id })
+        const userToken = await userTokens.findOne({ owner: user._id })
 
         if (!userToken) {
             res.status(404).send("Unable to find user")

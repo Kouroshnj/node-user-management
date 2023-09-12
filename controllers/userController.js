@@ -25,7 +25,7 @@ exports.Login = async (req, res) => {
         await userToken.save()
         res.status(201).send({ user, token })
     } catch (e) {
-        res.status(401).send({ error: "Unable to Login" })
+        res.status(401).send({ error: e.message })
     }
 }
 
