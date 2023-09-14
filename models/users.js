@@ -70,7 +70,7 @@ userSchema.statics.findUserByInfo = async function (email, password) {
     return user
 }
 
-userSchema.methods.generateAuthToken = async function () {
+userSchema.methods.generateAuthToken = function () {
     const user = this
 
     const token = jwt.sign({ _id: user._id.toString() }, process.env.SECRET_KEY)
