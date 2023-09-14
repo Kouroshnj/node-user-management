@@ -1,6 +1,7 @@
 const express = require("express")
 require("./src/db/mongoose")
 
+
 const PORT = process.env.PORT || 3000
 
 const userRouter = require("./routes/userRouter")

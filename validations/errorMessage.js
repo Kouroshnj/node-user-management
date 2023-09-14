@@ -1,4 +1,4 @@
-const errroMessages = {
+exports.controllerMessages = {
     User_Not_Found: "User not found",
     User_Log_Out: "User successfuly logged out",
     Update_Error: "Unable to update this field",
@@ -8,4 +8,10 @@ const errroMessages = {
     Delete_Image: "Image successfuly deleted",
 }
 
-module.exports = errroMessages
+exports.userModelErrors = {
+    Invalid_Pass: "Invalid password"
+}
+
+exports.authMessages = {
+    User_Not_Found: "User not found",
+}

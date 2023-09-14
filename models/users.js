@@ -1,81 +1,34 @@
 const mongoose = require("mongoose")
-const path = require("path")
 require("dotenv").config()
-const validator = require("validator")
+const { userModelErrors } = require("../validations/errorMessage")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
-const Tokens = require("./userTokens")
+
 
 const userSchema = new mongoose.Schema({
     firstName: {
-        type: String,
-        required: true,
-        trim: true,
-        validate(value) {
-            return isNaN(value)
-        }
+        type: String
     },
     lastName: {
-        type: String,
-        required: true,
-        trim: true,
-        validate(value) {
-            return isNaN(value)
-        }
+        type: String
     },
     age: {
-        type: Number,
-        default: 18
+        type: Number
     },
     parent: {
-        type: String,
-        trim: true,
-        required: true,
-        validate(value) {
-            return isNaN(value)
-        }
+        type: String
     },
     email: {
-        type: String,
-        rquired: true,
-        unique: true,
-        trim: true,
-        validate(value) {
-            if (!validator.isEmail(value)) {
-                throw new Error("Invalid email address")
-            }
-        }
+        type: String
     },
     password: {
-        type: String,
-        required: true,
-        min: 7,
-        trim: true,
-        validate(value) {
-            if (value.toLowerCase().includes("password")) {
-                throw new Error("Invalid password")
-            }
-        }
+        type: String
     },
     phoneNumber: [{
-        type: String,
-        required: true,
-        unique: true,
-        validate(value) {
-            if (value.length !== 11) {
-                throw new Error("Invalid phone number")
-            }
-        }
+        type: String
     }],
     nationalCode: {
-        type: String,
-        required: true,
-        unique: true,
-        validate(value) {
-            if (value.length !== 10) {
-                throw new Error("Invalid national code")
-            }
-        }
+        type: String
     },
     avatar: {
         type: String
@@ -129,6 +82,9 @@ userSchema.pre("save", async function (next) {
     try {
         if (!user.isModified("password")) {
             return next()
+        }
+        if (user.password.toLowerCase().includes("password")) {
+            throw new Error(userModelErrors.Invalid_Pass)
         }
         const salt = await bcrypt.genSalt(8)
         user.password = await bcrypt.hash(user.password, salt)
