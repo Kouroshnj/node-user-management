@@ -4,7 +4,7 @@ const path = require("path");
 const { controllerMessages } = require("../validations/errorMessage");
 
 class UserController {
-    async SignUp(req, res) {
+    async Signup(req, res) {
         try {
             const user = new userModel(req.body);
             const token = await user.generateAuthToken()
@@ -38,11 +38,11 @@ class UserController {
         }
     }
 
-    async userInfo(req, res) {
+    async Userinfo(req, res) {
         res.send(req.user)
     }
 
-    async updateUser(req, res) {
+    async Updateuser(req, res) {
         try {
             await req.user.save()
             res.status(201).send(req.user)
@@ -51,7 +51,7 @@ class UserController {
         }
     }
 
-    async changePassword(req, res) {
+    async Changepassword(req, res) {
         try {
             const user = await userModel.findUserByInfo(req.body.email, req.body.password)
             user.password = req.body.newPassword
@@ -62,19 +62,19 @@ class UserController {
         }
     }
 
-    async setImage(req, res) {
+    async Setimage(req, res) {
         req.user.avatar = req.file.originalname
         await req.user.save()
         res.status(201).send({ message: controllerMessages.Set_Image })
     }
 
-    async deleteImage(req, res) {
+    async Deleteimage(req, res) {
         req.user.avatar = undefined
         await req.user.save()
         res.status(201).send({ message: controllerMessages.Set_Image })
     }
 
-    async getImage(req, res) {
+    async Getimage(req, res) {
         try {
             const user = await userModel.findById(req.params.id)
 
