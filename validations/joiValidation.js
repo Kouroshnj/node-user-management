@@ -9,7 +9,6 @@ const userValidation = joi.object({
     password: joi.string().required().min(7).trim(),
     phoneNumber: joi.string().required().length(11).trim(),
     nationalCode: joi.string().required().length(10).trim(),
-    avatar: joi.string()
 })
 
 const LoginValidation = joi.object({
@@ -31,7 +30,6 @@ const updateUserValidation = joi.object({
     email: joi.string().email().trim(),
     phoneNumber: joi.string().length(11).trim(),
     nationalCode: joi.string().length(10).trim(),
-    avatar: joi.string()
 })
 
 module.exports = {
