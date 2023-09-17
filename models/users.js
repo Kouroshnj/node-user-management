@@ -98,23 +98,14 @@ const userModel = mongoose.model("userModel", userSchema);
 
 userModel.collection.createIndex({ age: 1 })
 
-userModel.collection.createIndex({ phoneNumber: 1 }, { unique: true }).then(() => {
-}).catch((error) => {
-    console.log(error);
-})
+userModel.collection.createIndex({ phoneNumber: 1 }, { unique: true })
 
-userModel.collection.createIndex({ email: 1 }, { unique: true }).then(() => {
-}).catch((error) => {
-    console.log(error);
-})
+userModel.collection.createIndex({ email: 1 }, { unique: true })
 
-userModel.collection.createIndex({ nationalCode: 1 }, { unique: true }).then(() => {
-}).catch((error) => {
-    console.log(error);
-})
+userModel.collection.createIndex({ nationalCode: 1 }, { unique: true })
 
 userModel.listIndexes().then((indexes) => {
-    console.log();
+    console.log(indexes);
 })
 
 module.exports = userModel
