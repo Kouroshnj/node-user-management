@@ -55,7 +55,7 @@ userSchema.methods.toJSON = function () {
 }
 
 userSchema.statics.findUserByInfo = async function (email, password) {
-    const user = await userModel.findOne({ email: email })
+    const user = await userModel.findOne({ email })
 
     if (!user) {
         throw new Error("User not found")
