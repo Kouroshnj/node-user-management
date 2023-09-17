@@ -94,8 +94,27 @@ userSchema.pre("save", async function (next) {
     }
 })
 
-
-
 const userModel = mongoose.model("userModel", userSchema);
+
+userModel.collection.createIndex({ age: 1 })
+
+userModel.collection.createIndex({ phoneNumber: 1 }, { unique: true }).then(() => {
+}).catch((error) => {
+    console.log(error);
+})
+
+userModel.collection.createIndex({ email: 1 }, { unique: true }).then(() => {
+}).catch((error) => {
+    console.log(error);
+})
+
+userModel.collection.createIndex({ nationalCode: 1 }, { unique: true }).then(() => {
+}).catch((error) => {
+    console.log(error);
+})
+
+userModel.listIndexes().then((indexes) => {
+    console.log();
+})
 
 module.exports = userModel
