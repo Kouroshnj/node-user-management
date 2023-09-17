@@ -2,7 +2,6 @@ const jwt = require("jsonwebtoken");
 const userModel = require("../models/users")
 const userTokens = require("../models/userTokens")
 const { authMessages } = require("../validations/errorMessage")
-require("dotenv").config()
 
 
 

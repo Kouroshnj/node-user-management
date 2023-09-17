@@ -1,5 +1,4 @@
 const mongoose = require("mongoose")
-require("dotenv").config()
 const { userModelErrors } = require("../validations/errorMessage")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
