@@ -4,7 +4,7 @@ const path = require("path");
 const { controllerMessages } = require("../validations/errorMessage");
 
 class UserController {
-    async Signup(req, res) {
+    async signUp(req, res) {
         try {
             const user = new userModel(req.body);
             const token = await user.generateAuthToken()
@@ -17,7 +17,7 @@ class UserController {
         }
     }
 
-    async Login(req, res) {
+    async logIn(req, res) {
         try {
             const user = await userModel.findUserByInfo(req.body.email, req.body.password)
             const token = await user.generateAuthToken()
@@ -29,7 +29,7 @@ class UserController {
         }
     }
 
-    async Logout(req, res) {
+    async logOut(req, res) {
         try {
             await userTokens.deleteOne({ token: req.token })
             res.status(201).send({ message: controllerMessages.User_Log_Out })
@@ -38,11 +38,11 @@ class UserController {
         }
     }
 
-    async Userinfo(req, res) {
+    async userInfo(req, res) {
         res.send(req.user)
     }
 
-    async Updateuser(req, res) {
+    async updateUser(req, res) {
         try {
             await req.user.save()
             res.status(201).send(req.user)
@@ -51,7 +51,7 @@ class UserController {
         }
     }
 
-    async Changepassword(req, res) {
+    async changePassword(req, res) {
         try {
             const user = await userModel.findUserByInfo(req.body.email, req.body.password)
             user.password = req.body.newPassword
@@ -62,19 +62,19 @@ class UserController {
         }
     }
 
-    async Setimage(req, res) {
+    async setImage(req, res) {
         req.user.avatar = req.file.originalname
         await req.user.save()
         res.status(201).send({ message: controllerMessages.Set_Image })
     }
 
-    async Deleteimage(req, res) {
+    async deleteImage(req, res) {
         req.user.avatar = undefined
         await req.user.save()
         res.status(201).send({ message: controllerMessages.Set_Image })
     }
 
-    async Getimage(req, res) {
+    async getImage(req, res) {
         try {
             const user = await userModel.findById(req.params.id)
 

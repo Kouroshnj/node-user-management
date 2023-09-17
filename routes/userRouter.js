@@ -8,18 +8,18 @@ const upload = require("../middleware/upload")
 const router = express.Router()
 
 
-router.post("/users/Signup", userValidation("userValidation"), userController.Signup)
+router.post("/users/Signup", userValidation("userValidation"), userController.signUp)
 
-router.post("/users/Login", userValidation("LoginValidation"), userController.Login)
+router.post("/users/Login", userValidation("LoginValidation"), userController.logIn)
 
-router.post("/users/Logout", auth, userController.Logout)
+router.post("/users/Logout", auth, userController.logOut)
 
-router.route("/users/me").get(auth, userController.Userinfo).patch([auth, updateValidation, userValidation("updateUserValidation")], userController.Updateuser)
+router.route("/users/me").get(auth, userController.userInfo).patch([auth, updateValidation, userValidation("updateUserValidation")], userController.updateUser)
 
-router.post("/users/me/changePassword", [auth, userValidation("changePasswordValidation")], userController.Changepassword)
+router.post("/users/me/changePassword", [auth, userValidation("changePasswordValidation")], userController.changePassword)
 
-router.route("/users/me/image").post(auth, upload.single("avatar"), userController.Setimage).delete(auth, userController.Deleteimage)
+router.route("/users/me/image").post(auth, upload.single("avatar"), userController.setImage).delete(auth, userController.deleteImage)
 
-router.get("/users/:id/avatar", auth, userController.Getimage)
+router.get("/users/:id/avatar", auth, userController.getImage)
 
 module.exports = router
