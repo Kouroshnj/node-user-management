@@ -7,7 +7,7 @@ const userValidation = joi.object({
     parent: joi.string().required().trim(),
     email: joi.string().required().email().trim(),
     password: joi.string().required().min(7).trim(),
-    phoneNumber: joi.string().required().length(11).trim(),
+    phoneNumber: joi.array().items(joi.string().required().length(11).trim()),
     nationalCode: joi.string().required().length(10).trim(),
 })
 
@@ -28,7 +28,7 @@ const updateUserValidation = joi.object({
     age: joi.number().default(18),
     parent: joi.string().trim(),
     email: joi.string().email().trim(),
-    phoneNumber: joi.string().length(11).trim(),
+    phoneNumber: joi.array().items(joi.string().required().length(11).trim()),
     nationalCode: joi.string().length(10).trim(),
 })
 
