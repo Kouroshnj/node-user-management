@@ -14,12 +14,14 @@ router.post("/users/Login", userValidation("LoginValidation"), userController.lo
 
 router.post("/users/Logout", auth, userController.logOut)
 
-router.route("/users/me").get(auth, userController.userInfo).patch([auth, updateValidation, userValidation("updateUserValidation")], userController.updateUser)
+router.route("/users/me").get(auth, userController.userInfo).patch([auth, userValidation("updateUserValidation")], userController.updateUser)
 
 router.post("/users/me/changePassword", [auth, userValidation("changePasswordValidation")], userController.changePassword)
 
 router.route("/users/me/image").post(auth, upload.single("avatar"), userController.setImage).delete(auth, userController.deleteImage)
 
 router.get("/users/:id/avatar", auth, userController.getImage)
+
+router.patch("/users/:id/phoneNumber", auth, userController.deletePhoneNumber)
 
 module.exports = router

@@ -9,7 +9,7 @@ const auth = async function (req, res, next) {
     try {
         const token = await req.header("Authorization").replace("Bearer ", "");
         const verification = jwt.verify(token, process.env.SECRET_KEY)
-        const user = await userModel.findOne({ _id: verification._id })
+        const user = await userModel.findOne({ userId: verification._userId })
         const userToken = await userTokens.findOne({ owner: user._id })
 
         if (!userToken) {
@@ -20,6 +20,7 @@ const auth = async function (req, res, next) {
             res.status(404).send(authMessages.User_Not_Found)
         }
         req.token = token
+        req.userId = verification._userId
         req.user = user
         next()
     } catch (e) {

@@ -1,5 +1,6 @@
 const userModel = require("../models/users")
 const userTokens = require("../models/userTokens")
+const methodsInstance = require("../data/methods")
 const path = require("path");
 const { controllerMessages } = require("../validations/errorMessage");
 
@@ -23,7 +24,7 @@ class UserController {
             const token = await user.generateAuthToken()
             const userToken = await userTokens.CreateToken(token, user._id)
             await userToken.save()
-            res.status(201).send({ user, token })
+            res.status(200).send({ user, token })
         } catch (e) {
             res.status(401).send({ error: e.message })
         }
@@ -44,10 +45,17 @@ class UserController {
 
     async updateUser(req, res) {
         try {
-            await req.user.save()
+            const updates = Object.keys(req.body)
+            for (const update of updates) {
+                if (update === "phoneNumber") {
+                    await methodsInstance._updateOnePush(req.token_id, ["phoneNumber"], req.body.phoneNumber)
+                } else {
+                    await methodsInstance._updateOne(req.token_id, [update], req.body[update])
+                }
+            }
             res.status(201).send(req.user)
-        } catch (e) {
-            res.status(400).send({ message: e.message })
+        } catch (error) {
+            res.status(422).send({ message: error.message })
         }
     }
 
