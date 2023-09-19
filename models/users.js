@@ -53,12 +53,14 @@ userSchema.methods.toJSON = function () {
     delete userObject.email
     delete userObject.nationalCode
     delete userObject.phoneNumber
+    delete userObject.userId
 
     return userObject
 }
 
 userSchema.statics.findUserByInfo = async function (email, password) {
-    const user = await userModel.findOne({ email })
+    const query = { email }
+    const user = await userModel.findOne(query)
 
     if (!user) {
         throw new Error("User not found")
@@ -76,7 +78,8 @@ userSchema.statics.findUserByInfo = async function (email, password) {
 userSchema.methods.generateAuthToken = function () {
     const user = this
 
-    const token = jwt.sign({ _userId: user.userId }, process.env.SECRET_KEY)
+    const token = jwt.sign({ _id: user._id.toString() }, process.env.SECRET_KEY)
+
     return token
 }
 

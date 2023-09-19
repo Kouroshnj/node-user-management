@@ -48,9 +48,15 @@ class UserController {
             const updates = Object.keys(req.body)
             for (const update of updates) {
                 if (update === "phoneNumber") {
-                    await methodsInstance._updateOnePush(req.token_id, ["phoneNumber"], req.body.phoneNumber)
+                    const updatePushResult = await methodsInstance._updateOnePush(req.userId, ["phoneNumber"], req.body.phoneNumber)
+                    if (updatePushResult.modifiedCount === 0) {
+                        return res.status(409).send({ message: controllerMessages.Aready_Available })
+                    }
                 } else {
-                    await methodsInstance._updateOne(req.token_id, [update], req.body[update])
+                    const updateResult = await methodsInstance._updateOne(req.userId, [update], req.body[update])
+                    if (updateResult.modifiedCount === 0) {
+                        return res.status(409).send({ message: controllerMessages.Aready_Available })
+                    }
                 }
             }
             res.status(201).send(req.user)

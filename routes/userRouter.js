@@ -22,6 +22,4 @@ router.route("/users/me/image").post(auth, upload.single("avatar"), userControll
 
 router.get("/users/:id/avatar", auth, userController.getImage)
 
-router.patch("/users/:id/phoneNumber", auth, userController.deletePhoneNumber)
-
 module.exports = router

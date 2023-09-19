@@ -6,6 +6,7 @@ exports.controllerMessages = {
     Change_Password: "Password successfuly changed",
     Set_Image: "Image sets successfuly",
     Delete_Image: "Image successfuly deleted",
+    Aready_Available: "Already have this value"
 }
 
 exports.userModelErrors = {

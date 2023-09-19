@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
-const userModel = require("../models/users")
-const userTokens = require("../models/userTokens")
+const methodsInstance = require("../data/methods")
 const { authMessages } = require("../validations/errorMessage")
 
 
@@ -9,19 +8,23 @@ const auth = async function (req, res, next) {
     try {
         const token = await req.header("Authorization").replace("Bearer ", "");
         const verification = jwt.verify(token, process.env.SECRET_KEY)
-        const user = await userModel.findOne({ userId: verification._userId })
-        const userToken = await userTokens.findOne({ owner: user._id })
+        const query = { _id: verification._id }
+        const user = methodsInstance._findOne(query)
+        const query2 = { owner: verification._id }
+        const userToken = methodsInstance._findOneTokens(query2)
+        const st = await Promise.all([verification, user, userToken])
 
         if (!userToken) {
-            res.status(404).send(authMessages.User_Not_Found)
+            return res.status(404).send(authMessages.User_Not_Found)
         }
 
         if (!user) {
-            res.status(404).send(authMessages.User_Not_Found)
+            return res.status(404).send(authMessages.User_Not_Found)
         }
         req.token = token
-        req.userId = verification._userId
-        req.user = user
+        req.userId = st[1].userId
+        req.token_id = st[0]._id
+        req.user = st[1]
         next()
     } catch (e) {
         res.status(404).send({ error: e.message })
