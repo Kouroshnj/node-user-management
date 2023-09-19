@@ -1,6 +1,6 @@
 const userModel = require("../models/users")
 const methodsInstance = require("../data/methods")
-const { controllerMessages } = require("../validations/errorMessage")
+const { controllerMessages } = require("../validations/messages")
 
 
 const updateValidation = async function (req, res, next) {

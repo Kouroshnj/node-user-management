@@ -1,3 +1,4 @@
+const { environmentExp } = require("../validations/messages")
 const mongoose = require("mongoose")
 
 const tokenSchema = new mongoose.Schema({
@@ -6,21 +7,21 @@ const tokenSchema = new mongoose.Schema({
         required: true
     },
     owner: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         required: true,
         ref: "User"
     },
     createdAt: {
         type: Date,
-        expires: 3600,
+        expires: environmentExp,
         default: Date.now
     }
 })
 
-tokenSchema.statics.CreateToken = async function (token, _id) {
+tokenSchema.statics.CreateToken = async function (token, userId) {
     const userToken = new userTokens({
         token: token,
-        owner: _id
+        owner: userId
     })
 
     return userToken

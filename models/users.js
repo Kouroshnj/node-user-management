@@ -1,5 +1,5 @@
 const mongoose = require("mongoose")
-const { userModelErrors } = require("../validations/errorMessage")
+const { userModelErrors, environmentExp } = require("../validations/messages")
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
@@ -78,7 +78,7 @@ userSchema.statics.findUserByInfo = async function (email, password) {
 userSchema.methods.generateAuthToken = function () {
     const user = this
 
-    const token = jwt.sign({ _id: user._id.toString() }, process.env.SECRET_KEY)
+    const token = jwt.sign({ _userId: user.userId }, process.env.SECRET_KEY, { expiresIn: environmentExp })
 
     return token
 }
@@ -97,6 +97,7 @@ userSchema.pre("save", async function (next) {
         user.password = await bcrypt.hash(user.password, salt)
         next()
     } catch (e) {
+        console.log(e);
         next(e)
     }
 })

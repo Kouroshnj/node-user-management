@@ -14,11 +14,18 @@ class Methods {
     }
 
     async _findOne(query) {
-        return await userModel.findOne(query)
+        return await userModel.findOne(query).lean()
     }
 
     async _findOneTokens(query) {
         return await userTokens.findOne(query)
+    }
+
+    _mongoServerError(value) {
+        if (value === 11000) {
+            return true
+        }
+        return false
     }
 }
 
