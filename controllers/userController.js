@@ -4,7 +4,7 @@ const Methods = require("../services/methods.service")
 const Management = require("../utils/manage")
 const path = require("path");
 const bcrypt = require("bcryptjs")
-const { controllerMessages, statusCodes } = require("../validations/messages");
+const { controllerMessages, statusCodes, userModelErrors } = require("../validations/messages");
 
 const userMethods = new Methods(userModel)
 const tokenMethods = new Methods(userTokens)
@@ -189,7 +189,7 @@ class UserController {
 
     #generateNewPass = async (reqBody) => {
         const { email, oldPassword, newPassword } = reqBody
-        const isValid = this.#comparePass(email, oldPassword)
+        const isValid = await this.#comparePass(email, oldPassword)
 
 
         if (!isValid) {
