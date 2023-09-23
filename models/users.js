@@ -1,8 +1,6 @@
 const mongoose = require("mongoose")
-const { userModelErrors, environmentExp } = require("../validations/messages")
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require("bcryptjs")
-const jwt = require("jsonwebtoken")
 
 
 const userSchema = new mongoose.Schema({
@@ -58,39 +56,11 @@ userSchema.methods.toJSON = function () {
     return userObject
 }
 
-userSchema.statics.findUserByInfo = async function (email, password) {
-    const query = { email }
-    const user = await userModel.findOne(query)
-
-    if (!user) {
-        throw new Error("User not found")
-    }
-
-    const isValid = await bcrypt.compare(password, user.password)
-
-    if (!isValid) {
-        throw new Error("Username or password is wrong")
-    }
-
-    return user
-}
-
-userSchema.methods.generateAuthToken = function () {
-    const user = this
-
-    const token = jwt.sign({ _userId: user.userId }, process.env.SECRET_KEY, { expiresIn: environmentExp })
-
-    return token
-}
-
 userSchema.pre("save", async function (next) {
     const user = this
     try {
         if (!user.isModified("password")) {
             return next()
-        }
-        if (user.password.toLowerCase().includes("password")) {
-            throw new Error(userModelErrors.Invalid_Pass)
         }
         user.userId = `UserId,${uuidv4()}`
         const salt = await bcrypt.genSalt(8)

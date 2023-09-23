@@ -1,38 +1,49 @@
 const userModel = require("../models/users")
 const userTokens = require("../models/userTokens")
-const methodsInstance = require("../data/methods")
+const Methods = require("../services/methods.service")
+const Management = require("../utils/manage")
 const path = require("path");
+const bcrypt = require("bcryptjs")
 const { controllerMessages, statusCodes } = require("../validations/messages");
 
+const userMethods = new Methods(userModel)
+const tokenMethods = new Methods(userTokens)
+const manageInstance = new Management(userModel)
+
 class UserController {
+
     async signUp(req, res) {
         try {
-            const user = new userModel(req.body);
+            const user = await userMethods._createUser(req.body)
             await user.save()
-            const token = await user.generateAuthToken()
-            const userToken = await userTokens.CreateToken(token, user.userId)
+            const token = await manageInstance._generateAuthToken(user)
+            const userToken = await tokenMethods._createToken(token, user.userId)
             await userToken.save()
             return res.status(statusCodes.Created).send({ user, token })
-        } catch (e) {
-            const IsServerError = methodsInstance._mongoServerError(e.code)
-            if (IsServerError) {
-                return res.status(statusCodes.Conflict).send({ message: `${Object.keys(e.keyValue)} is duplicate` })
+        } catch (error) {
+            const IsServerError = manageInstance._mongoServerError(error.code, error.keyValue)
+            if (IsServerError.condition) {
+                return res.status(statusCodes.Conflict).send({
+                    message: IsServerError.error
+                })
             } else {
-                res.status(statusCodes.Bad_Request).send({ message: e.message })
+                res.status(statusCodes.Bad_Request).send({ message: error.message })
             }
         }
     }
 
-    async logIn(req, res) {
+    logIn = async (req, res) => {
         try {
             const { email, password } = req.body;
-            const user = await userModel.findUserByInfo(email, password)
-            const token = await user.generateAuthToken()
-            const userToken = await userTokens.CreateToken(token, user.userId)
+            const query = { email }
+            // const user = await userModel.findUserByInfo(email, password)
+            const user = await userMethods._findByInfo(query, password)
+            const token = await manageInstance._generateAuthToken(user)
+            const userToken = await tokenMethods._createToken(token, user.userId)
             await userToken.save()
-            res.status(statusCodes.OK).send({ user, token })
-        } catch (e) {
-            res.status(statusCodes.Unauthorized).send({ error: e.message })
+            res.status(statusCodes.OK).send({ user: this.#userInfoData(user), token })
+        } catch (error) {
+            res.status(statusCodes.Unauthorized).send({ message: error.message })
         }
     }
 
@@ -40,63 +51,88 @@ class UserController {
         try {
             await userTokens.deleteOne({ token: req.token })
             res.status(statusCodes.Created).send({ message: controllerMessages.User_Log_Out })
-        } catch (e) {
-            res.status(statusCodes.Not_Found).send({ error: e })
-        }
-    }
-
-    async userInfo(req, res) {
-        res.send()
-    }
-
-    async updateUser(req, res) {
-        try {
-            const updates = Object.keys(req.body)
-            for (const update of updates) {
-                if (update === "phoneNumber") {
-                    const updatePushResult = await methodsInstance._updateOnePush(req.userId, ["phoneNumber"], req.body.phoneNumber)
-                    if (updatePushResult.modifiedCount === 0) {
-                        return res.status(statusCodes.Conflict).send({ message: controllerMessages.Aready_Available })
-                    }
-                } else {
-                    const updateResult = await methodsInstance._updateOne(req.userId, [update], req.body[update])
-                    if (updateResult.modifiedCount === 0) {
-                        return res.status(statusCodes.Conflict).send({ message: controllerMessages.Aready_Available })
-                    }
-                }
-            }
-            res.status(statusCodes.Created).send(req.user)
         } catch (error) {
-            res.status(statusCodes.Conflict).send({ message: error.message })
+            res.status(statusCodes.Not_Found).send({ message: error.message })
         }
     }
 
-    async changePassword(req, res) {
+    userInfo = async (req, res) => {
         try {
-            const user = await userModel.findUserByInfo(req.body.email, req.body.password)
-            user.password = req.body.newPassword
-            await user.save()
-            res.status(statusCodes.Created).send({ message: controllerMessages.Change_Password })
-        } catch (e) {
-            res.status(statusCodes.Unauthorized).send({ message: e.message })
+            const user = await userMethods._findOne({ userId: req.userId })
+            return res.status(statusCodes.OK).send(this.#userInfoData(user))
+        } catch (error) {
+            res.status(statusCodes.Not_Found).send({ message: error.message })
         }
     }
 
-    async setImage(req, res) {
-        req.user.avatar = req.file.originalname
-        await req.user.save()
-        res.status(statusCodes.Created).send({ message: controllerMessages.Set_Image })
+    updateUser = async (req, res) => {
+        try {
+            this.#updateHandler(req.body, req.userId)
+            res.status(statusCodes.Created).send({ message: controllerMessages.Update_Success })
+        } catch (error) {
+            const IsServerError = this._mongoServerError(error.code, error.keyValue)
+            if (IsServerError.condition) {
+                return res.status(statusCodes.Conflict).send({
+                    message: IsServerError.error
+                })
+            } else {
+                res.status(statusCodes.Bad_Request).send({ message: error.message })
+            }
+        }
+    }
+
+    removePhoneNumber = async (req, res) => {
+        try {
+            await this.#removePhoneNumber(req.body.phoneNumber, req.userId)
+            res.status(statusCodes.Created).send({ message: controllerMessages.PhoneNumber_Delete })
+        } catch (error) {
+            res.status(statusCodes.Not_Acceptable).send({ message: error.message })
+        }
+    }
+
+    changePassword = async (req, res) => {
+        try {
+            const { email } = req.body
+            const query = { email }
+
+            const hashedPassword = await this.#generateNewPass(req.body)
+
+            const operation = { $set: { password: hashedPassword } }
+            await userMethods._updateOne(query, operation)
+            res.status(statusCodes.Created).send({ message: controllerMessages.Change_Password })
+        } catch (error) {
+            res.status(statusCodes.Unauthorized).send({ message: error.message })
+        }
+    }
+
+    setImage = async (req, res) => {
+        try {
+            // req.user.avatar = req.file.originalname
+            const query = { userId: req.userId }
+            const operation = { $set: { avatar: req.file.originalname } }
+            await userMethods._findOneAndUpdate(query, operation)
+            res.status(statusCodes.Created).send({ message: controllerMessages.Set_Image })
+        } catch (error) {
+            res.status(statusCodes.Bad_Request).send({ message: error.message })
+        }
     }
 
     async deleteImage(req, res) {
-        req.user.avatar = undefined
-        await req.user.save()
-        res.status(statusCodes.Created).send({ message: controllerMessages.Set_Image })
+        try {
+            const query = { userId: req.userId }
+            const operation = { $unset: { avatar: "" } }
+            await userMethods._updateOne(query, operation)
+            res.status(statusCodes.Created).send({ message: controllerMessages.Delete_Image })
+        } catch (error) {
+            res.status(statusCodes.Bad_Request).send({ message: error.message })
+        }
     }
 
     async getImage(req, res) {
         try {
-            const user = await userModel.findById(req.params.id)
+            const query = { userId: req.userId }
+
+            const user = await userMethods._findOne(query)
 
             if (!user || !user.avatar) {
                 return res.status(statusCodes.Not_Found).send({ message: controllerMessages.Unavailable_Image })
@@ -112,6 +148,58 @@ class UserController {
         } catch (e) {
             res.status(statusCodes.Not_Found).send({ message: e.message })
         }
+    }
+
+    async #updateHandler(reqBody, reqUserId) {
+        if ("phoneNumber" in reqBody) {
+            const pushQuery = { userId: reqUserId, phoneNumber: { $nin: reqBody.phoneNumber } }
+            const pushOperation = { $push: { phoneNumber: reqBody.phoneNumber } }
+            await userMethods._updateOne(pushQuery, pushOperation)
+        }
+        delete reqBody.phoneNumber
+        const setQuery = { userId: reqUserId }
+        const setOperation = { $set: reqBody }
+        await userMethods._updateOne(setQuery, setOperation)
+    }
+
+    async #removePhoneNumber(phoneNumbers, reqUserId) {
+        const pullQuery = { userId: reqUserId }
+        const pullOperation = { $pull: { phoneNumber: { $in: phoneNumbers } } }
+        await userMethods._updateOne(pullQuery, pullOperation)
+    }
+
+    #userInfoData(user) {
+        return {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            age: user.age,
+            parent: user.parent,
+            nationalCode: user.nationalCode
+        }
+    }
+
+    #comparePass = async (email, oldPassword) => {
+        const query = { email }
+        const user = await userMethods._findOne(query)
+        const hashPass = await user.password
+        const isValid = await bcrypt.compare(oldPassword, hashPass)
+
+        return isValid
+    }
+
+    #generateNewPass = async (reqBody) => {
+        const { email, oldPassword, newPassword } = reqBody
+        const isValid = this.#comparePass(email, oldPassword)
+
+
+        if (!isValid) {
+            throw new Error(userModelErrors.Email_Pass_Wrong)
+        }
+
+        const salt = await bcrypt.genSalt(8)
+        const hashedPass = await bcrypt.hash(newPassword, salt)
+
+        return hashedPass
     }
 }
 

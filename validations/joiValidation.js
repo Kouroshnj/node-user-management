@@ -19,7 +19,7 @@ const LoginValidation = joi.object({
 
 const changePasswordValidation = joi.object({
     email: joi.string().required().email().trim(),
-    password: joi.string().required().min(7).trim(),
+    oldPassword: joi.string().required().min(7).trim(),
     newPassword: joi.string().required().min(7).trim()
 }).unknown(false)
 
@@ -33,9 +33,14 @@ const updateUserValidation = joi.object({
     nationalCode: joi.string().length(10).trim(),
 }).unknown(false)
 
+const deletePhoneNumberValidation = joi.object({
+    phoneNumber: joi.array().items(joi.string().length(11).trim())
+})
+
 module.exports = {
     userValidation,
     LoginValidation,
     changePasswordValidation,
-    updateUserValidation
+    updateUserValidation,
+    deletePhoneNumberValidation
 }
