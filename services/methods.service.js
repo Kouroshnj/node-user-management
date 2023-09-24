@@ -16,6 +16,10 @@ class Methods {
         return await this.model.findOne(query).lean()
     }
 
+    async _deleteOne(query) {
+        return await this.model.deleteOne(query)
+    }
+
     async _findOneAndUpdate(query, operation) {
         return this.model.findOneAndUpdate(query, operation)
     }

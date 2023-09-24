@@ -36,7 +36,6 @@ class UserController {
         try {
             const { email, password } = req.body;
             const query = { email }
-            // const user = await userModel.findUserByInfo(email, password)
             const user = await userMethods._findByInfo(query, password)
             const token = await manageInstance._generateAuthToken(user)
             const userToken = await tokenMethods._createToken(token, user.userId)
@@ -49,7 +48,8 @@ class UserController {
 
     async logOut(req, res) {
         try {
-            await userTokens.deleteOne({ token: req.token })
+            const query = { token: req.token }
+            await tokenMethods._deleteOne(query)
             res.status(statusCodes.Created).send({ message: controllerMessages.User_Log_Out })
         } catch (error) {
             res.status(statusCodes.Not_Found).send({ message: error.message })
@@ -67,7 +67,7 @@ class UserController {
 
     updateUser = async (req, res) => {
         try {
-            this.#updateHandler(req.body, req.userId)
+            await this.#updateHandler(req.body, req.userId)
             res.status(statusCodes.Created).send({ message: controllerMessages.Update_Success })
         } catch (error) {
             const IsServerError = this._mongoServerError(error.code, error.keyValue)
@@ -107,7 +107,6 @@ class UserController {
 
     setImage = async (req, res) => {
         try {
-            // req.user.avatar = req.file.originalname
             const query = { userId: req.userId }
             const operation = { $set: { avatar: req.file.originalname } }
             await userMethods._findOneAndUpdate(query, operation)
