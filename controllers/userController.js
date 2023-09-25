@@ -202,6 +202,6 @@ class UserController {
     }
 }
 
-const userInstance = new UserController()
+const userInstance = UserController
 
 module.exports = userInstance

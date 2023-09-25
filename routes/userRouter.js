@@ -1,10 +1,12 @@
 const express = require("express");
 const auth = require("../middleware/auth")
-const userController = require("../controllers/userController")
+const UserController = require("../controllers/userController")
 const userValidation = require("../middleware/validate")
 const upload = require("../middleware/upload")
 
 const router = express.Router()
+
+const userController = new UserController()
 
 
 router.post("/users/Signup", userValidation("userValidation"), userController.signUp)

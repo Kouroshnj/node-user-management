@@ -5,7 +5,8 @@ const bcrypt = require("bcryptjs")
 
 const userSchema = new mongoose.Schema({
     userId: {
-        type: String
+        type: String,
+        default: `UserId,${uuidv4()}`
     },
     firstName: {
         type: String
@@ -14,7 +15,8 @@ const userSchema = new mongoose.Schema({
         type: String
     },
     age: {
-        type: Number
+        type: Number,
+        default: 18
     },
     parent: {
         type: String
@@ -62,7 +64,6 @@ userSchema.pre("save", async function (next) {
         if (!user.isModified("password")) {
             return next()
         }
-        user.userId = `UserId,${uuidv4()}`
         const salt = await bcrypt.genSalt(8)
         user.password = await bcrypt.hash(user.password, salt)
         next()
@@ -74,12 +75,13 @@ userSchema.pre("save", async function (next) {
 
 const userModel = mongoose.model("userModel", userSchema);
 
-userModel.collection.createIndex({ age: 1 })
+userModel.collection.createIndex({ age: 1, defualt: 18 })
 
 userModel.collection.createIndex({ phoneNumber: 1 }, { unique: true })
 
 userModel.collection.createIndex({ email: 1 }, { unique: true })
 
 userModel.collection.createIndex({ nationalCode: 1 }, { unique: true })
+
 
 module.exports = userModel
