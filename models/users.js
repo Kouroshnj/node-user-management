@@ -75,7 +75,7 @@ userSchema.pre("save", async function (next) {
 
 const userModel = mongoose.model("userModel", userSchema);
 
-userModel.collection.createIndex({ age: 1, defualt: 18 })
+userModel.collection.createIndex({ age: 1 })
 
 userModel.collection.createIndex({ phoneNumber: 1 }, { unique: true })
 
