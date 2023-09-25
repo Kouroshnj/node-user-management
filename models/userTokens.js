@@ -9,7 +9,7 @@ const tokenSchema = new mongoose.Schema({
     owner: {
         type: String,
         required: true,
-        ref: "User"
+        ref: "userModel"
     },
     createdAt: {
         type: Date,
