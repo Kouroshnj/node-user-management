@@ -8,7 +8,7 @@ const { controllerMessages, statusCodes, userModelErrors } = require("../validat
 
 const userMethods = new Methods(userModel)
 const tokenMethods = new Methods(userTokens)
-const manageInstance = new Management(userModel)
+const manageInstance = new Management()
 
 class UserController {
 
