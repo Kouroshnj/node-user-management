@@ -70,7 +70,7 @@ class UserController {
             await this.#updateHandler(req.body, req.userId)
             res.status(statusCodes.Created).send({ message: controllerMessages.Update_Success })
         } catch (error) {
-            const IsServerError = this._mongoServerError(error.code, error.keyValue)
+            const IsServerError = manageInstance._mongoServerError(error.code, error.keyValue)
             if (IsServerError.condition) {
                 return res.status(statusCodes.Conflict).send({
                     message: IsServerError.error
