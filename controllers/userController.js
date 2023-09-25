@@ -41,7 +41,7 @@ class UserController {
 
     async logOut(req, res) {
         try {
-            const query = { token: req.token }
+            const query = { token: req.sessions.token }
             await tokenMethods._deleteOne(query)
             res.status(statusCodes.Created).send({ message: controllerMessages.User_Log_Out })
         } catch (error) {
@@ -51,7 +51,7 @@ class UserController {
 
     userInfo = async (req, res) => {
         try {
-            const user = await userMethods._findOne({ userId: req.userId })
+            const user = await userMethods._findOne({ userId: req.sessions.userId })
             await this.#userNotFound(user)
             return res.status(statusCodes.OK).send(this.#userInfoData(user))
         } catch (error) {
@@ -61,7 +61,7 @@ class UserController {
 
     updateUser = async (req, res) => {
         try {
-            await this.#updateHandler(req.body, req.userId)
+            await this.#updateHandler(req.body, req.sessions.userId)
             res.status(statusCodes.Created).send({ message: controllerMessages.Update_Success })
         } catch (error) {
             await this.#duplicateError(error, res)
@@ -70,7 +70,7 @@ class UserController {
 
     removePhoneNumber = async (req, res) => {
         try {
-            await this.#removePhoneNumber(req.body.phoneNumber, req.userId)
+            await this.#removePhoneNumber(req.body.phoneNumber, req.sessions.userId)
             res.status(statusCodes.Created).send({ message: controllerMessages.PhoneNumber_Delete })
         } catch (error) {
             res.status(statusCodes.Not_Acceptable).send({ message: error.message })
@@ -96,7 +96,7 @@ class UserController {
 
     setImage = async (req, res) => {
         try {
-            const query = { userId: req.userId }
+            const query = { userId: req.sessions.userId }
             const operation = { $set: { avatar: req.file.originalname } }
             await userMethods._findOneAndUpdate(query, operation)
             res.status(statusCodes.Created).send({ message: controllerMessages.Set_Image })
@@ -107,7 +107,7 @@ class UserController {
 
     async deleteImage(req, res) {
         try {
-            const query = { userId: req.userId }
+            const query = { userId: req.sessions.userId }
             const operation = { $unset: { avatar: "" } }
             await userMethods._updateOne(query, operation)
             res.status(statusCodes.Created).send({ message: controllerMessages.Delete_Image })
@@ -118,7 +118,7 @@ class UserController {
 
     async getImage(req, res) {
         try {
-            const query = { userId: req.userId }
+            const query = { userId: req.sessions.userId }
 
             const user = await userMethods._findOne(query)
 
@@ -207,6 +207,4 @@ class UserController {
     }
 }
 
-const userInstance = UserController
-
-module.exports = userInstance
+module.exports = UserController

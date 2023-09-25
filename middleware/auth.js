@@ -23,9 +23,14 @@ const auth = async function (req, res, next) {
         if (!userInfo) {
             return res.status(statusCodes.Not_Found).send({ message: authMessages.User_Not_Found })
         }
-        req.token = token
-        req.userId = verificationStatus._userId
-        req.user = userInfo
+        // req.token = token
+        // req.userId = verificationStatus._userId
+        // req.user = userInfo
+        req.sessions = {
+            token,
+            userInfo,
+            userId: verificationStatus._userId
+        }
         next()
     } catch (e) {
         res.status(statusCodes.Not_Found).send({ error: e.message })

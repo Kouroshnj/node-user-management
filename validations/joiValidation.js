@@ -10,18 +10,18 @@ const userValidation = joi.object({
     password: joi.string().required().min(7).trim(),
     phoneNumber: joi.array().unique().items(joi.string().required().length(11).trim()),
     nationalCode: joi.string().required().length(10).trim(),
-}).unknown(false)
+})
 
 const LoginValidation = joi.object({
     email: joi.string().required().email().trim(),
     password: joi.string().required().min(7).trim(),
-}).unknown(false)
+})
 
 const changePasswordValidation = joi.object({
     email: joi.string().required().email().trim(),
     oldPassword: joi.string().required().min(7).trim(),
     newPassword: joi.string().required().min(7).trim()
-}).unknown(false)
+})
 
 const updateUserValidation = joi.object({
     firstName: joi.string().trim(),
@@ -31,7 +31,7 @@ const updateUserValidation = joi.object({
     email: joi.string().email().trim(),
     phoneNumber: joi.array().unique().items(joi.string().length(11).trim()),
     nationalCode: joi.string().length(10).trim(),
-}).unknown(false)
+})
 
 const deletePhoneNumberValidation = joi.object({
     phoneNumber: joi.array().items(joi.string().length(11).trim())
