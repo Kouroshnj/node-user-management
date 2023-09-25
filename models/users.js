@@ -6,7 +6,7 @@ const bcrypt = require("bcryptjs")
 const userSchema = new mongoose.Schema({
     userId: {
         type: String,
-        default: () => uuidv4()
+        default: () => `UserId_${uuidv4()}`
     },
     firstName: {
         type: String
@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema({
 userSchema.virtual("userTokens", {
     ref: "userTokens",
     localField: "_id",
-    foreignField: "owner"
+    foreignField: "userId"
 })
 
 // <<<<<<<<<<<< methods >>>>>>>>>>>>

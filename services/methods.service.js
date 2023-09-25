@@ -47,8 +47,8 @@ class Methods {
 
     _createToken = (token, userId) => {
         const userToken = new this.model({
-            token: token,
-            owner: userId
+            token,
+            userId
         })
         return userToken
     }

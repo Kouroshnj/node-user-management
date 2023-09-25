@@ -6,6 +6,7 @@ exports.controllerMessages = {
     Unavailable_Image: "User image unavailable",
     Change_Password: "Password successfuly changed",
     Set_Image: "Image sets successfuly",
+    Email_Pass_Wrong: "Email or password is wrong",
     Delete_Image: "Image successfuly deleted",
     Aready_Available: "Already have this value",
     PhoneNumber_Delete: "phoneNumber successfully deleted"

@@ -12,10 +12,9 @@ const auth = async function (req, res, next) {
         const token = await req.header("Authorization").replace("Bearer ", "");
         const verificationStatus = await jwt.verify(token, process.env.SECRET_KEY)
         const query = { userId: verificationStatus._userId }
-        const query2 = { owner: verificationStatus._userId }
         const [userInfo, userToken] = await Promise.all([
             userMethods._findOne(query),
-            tokenMethods._findOne(query2),
+            tokenMethods._findOne(query),
         ])
         if (!userToken || userToken == null) {
             return res.status(statusCodes.Not_Found).send({ message: authMessages.User_Not_Found })

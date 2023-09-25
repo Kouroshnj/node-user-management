@@ -12,7 +12,7 @@ const manageInstance = new Management()
 
 class UserController {
 
-    async signUp(req, res) {
+    signUp = async (req, res) => {
         try {
             const user = await userMethods._createUser(req.body)
             await user.save()
@@ -21,14 +21,7 @@ class UserController {
             await userToken.save()
             return res.status(statusCodes.Created).send({ user, token })
         } catch (error) {
-            const IsServerError = manageInstance._mongoServerError(error.code, error.keyValue)
-            if (IsServerError.condition) {
-                return res.status(statusCodes.Conflict).send({
-                    message: IsServerError.error
-                })
-            } else {
-                res.status(statusCodes.Bad_Request).send({ message: error.message })
-            }
+            await this.#duplicateError(error, res)
         }
     }
 
@@ -59,6 +52,7 @@ class UserController {
     userInfo = async (req, res) => {
         try {
             const user = await userMethods._findOne({ userId: req.userId })
+            await this.#userNotFound(user)
             return res.status(statusCodes.OK).send(this.#userInfoData(user))
         } catch (error) {
             res.status(statusCodes.Not_Found).send({ message: error.message })
@@ -70,14 +64,7 @@ class UserController {
             await this.#updateHandler(req.body, req.userId)
             res.status(statusCodes.Created).send({ message: controllerMessages.Update_Success })
         } catch (error) {
-            const IsServerError = manageInstance._mongoServerError(error.code, error.keyValue)
-            if (IsServerError.condition) {
-                return res.status(statusCodes.Conflict).send({
-                    message: IsServerError.error
-                })
-            } else {
-                res.status(statusCodes.Bad_Request).send({ message: error.message })
-            }
+            await this.#duplicateError(error, res)
         }
     }
 
@@ -92,8 +79,10 @@ class UserController {
 
     changePassword = async (req, res) => {
         try {
-            const { email } = req.body
+            const { email, oldPassword } = req.body
             const query = { email }
+
+            await this.#comparePass(email, oldPassword)
 
             const hashedPassword = await this.#generateNewPass(req.body)
 
@@ -180,25 +169,41 @@ class UserController {
     #comparePass = async (email, oldPassword) => {
         const query = { email }
         const user = await userMethods._findOne(query)
+
+        await this.#userNotFound(user)
+
         const hashPass = await user.password
         const isValid = await bcrypt.compare(oldPassword, hashPass)
 
-        return isValid
+        if (!isValid) {
+            throw new Error(controllerMessages.Email_Pass_Wrong)
+        }
     }
 
     #generateNewPass = async (reqBody) => {
-        const { email, oldPassword, newPassword } = reqBody
-        const isValid = await this.#comparePass(email, oldPassword)
-
-
-        if (!isValid) {
-            throw new Error(userModelErrors.Email_Pass_Wrong)
-        }
+        const { newPassword } = reqBody
 
         const salt = await bcrypt.genSalt(8)
         const hashedPass = await bcrypt.hash(newPassword, salt)
 
         return hashedPass
+    }
+
+    async #userNotFound(user) {
+        if (!user || user == null) {
+            throw new Error(controllerMessages.User_Not_Found)
+        }
+    }
+
+    #duplicateError = async (error, response) => {
+        const IsServerError = manageInstance._mongoServerError(error.code, error.keyValue)
+        if (IsServerError.condition) {
+            return response.status(statusCodes.Conflict).send({
+                message: IsServerError.error
+            })
+        } else {
+            response.status(statusCodes.Bad_Request).send({ message: error.message })
+        }
     }
 }
 

@@ -6,7 +6,7 @@ const tokenSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    owner: {
+    userId: {
         type: String,
         required: true,
         ref: "userModel"
