@@ -6,7 +6,6 @@ const bcrypt = require("bcryptjs")
 const userSchema = new mongoose.Schema({
     userId: {
         type: String,
-        default: () => `UserId_${uuidv4()}`
     },
     firstName: {
         type: String
@@ -16,7 +15,6 @@ const userSchema = new mongoose.Schema({
     },
     age: {
         type: Number,
-        default: 18
     },
     parent: {
         type: String
@@ -44,26 +42,13 @@ userSchema.virtual("userTokens", {
     foreignField: "userId"
 })
 
-// <<<<<<<<<<<< methods >>>>>>>>>>>>
-userSchema.methods.toJSON = function () {
-    const user = this
-    const userObject = user.toObject();
-
-    delete userObject.password
-    delete userObject.email
-    delete userObject.nationalCode
-    delete userObject.phoneNumber
-    delete userObject.userId
-
-    return userObject
-}
-
 userSchema.pre("save", async function (next) {
     const user = this
     try {
         if (!user.isModified("password")) {
             return next()
         }
+        user.userId = uuidv4()
         const salt = await bcrypt.genSalt(8)
         user.password = await bcrypt.hash(user.password, salt)
         next()

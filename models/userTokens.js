@@ -1,4 +1,4 @@
-const { environmentExp } = require("../validations/messages")
+const { environmentExp } = require("../constant/consts")
 const mongoose = require("mongoose")
 
 const tokenSchema = new mongoose.Schema({
@@ -18,6 +18,4 @@ const tokenSchema = new mongoose.Schema({
     }
 })
 
-const userTokens = mongoose.model("userTokens", tokenSchema)
-
-module.exports = userTokens
+module.exports = mongoose.model("userTokens", tokenSchema)

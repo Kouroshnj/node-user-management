@@ -1,10 +1,9 @@
 const joi = require("joi")
 
 const userValidation = joi.object({
-    userId: joi.string().trim(),
     firstName: joi.string().required().trim(),
     lastName: joi.string().required().trim(),
-    age: joi.number().default(18),
+    age: joi.number().required(),
     parent: joi.string().required().trim(),
     email: joi.string().required().email().trim(),
     password: joi.string().required().min(7).trim(),
@@ -26,7 +25,7 @@ const changePasswordValidation = joi.object({
 const updateUserValidation = joi.object({
     firstName: joi.string().trim(),
     lastName: joi.string().trim(),
-    age: joi.number().default(18),
+    age: joi.number(),
     parent: joi.string().trim(),
     email: joi.string().email().trim(),
     phoneNumber: joi.array().unique().items(joi.string().length(11).trim()),

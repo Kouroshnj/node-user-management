@@ -1,31 +1,28 @@
-const jwt = require("jsonwebtoken");
-const { authMessages, statusCodes } = require("../validations/messages");
-const Methods = require("../services/methods.service")
+const { statusCodes, authMessages } = require("../constant/consts")
+const UserMethods = require("../services/user.service")
+const TokenMethods = require("../services/token.service")
+const AuthManagement = require("../utils/authManagement")
 const userModel = require("../models/users");
 const userTokens = require("../models/userTokens")
 
-const userMethods = new Methods(userModel)
-const tokenMethods = new Methods(userTokens)
+const userMethods = new UserMethods(userModel)
+const tokenMethods = new TokenMethods(userTokens)
+const authManagement = new AuthManagement()
+
 
 const auth = async function (req, res, next) {
     try {
         const token = await req.header("Authorization").replace("Bearer ", "");
-        const verificationStatus = await jwt.verify(token, process.env.SECRET_KEY)
+        const verificationStatus = await authManagement.verifyAuthToken(token)
         const query = { userId: verificationStatus._userId }
         const [userInfo, userToken] = await Promise.all([
-            userMethods._findOne(query),
-            tokenMethods._findOne(query),
+            userMethods.findOne(query),
+            tokenMethods.findOne(query),
         ])
-        if (!userToken || userToken == null) {
+        if (!userToken || userToken == null || !userInfo) {
             return res.status(statusCodes.Not_Found).send({ message: authMessages.User_Not_Found })
         }
 
-        if (!userInfo) {
-            return res.status(statusCodes.Not_Found).send({ message: authMessages.User_Not_Found })
-        }
-        // req.token = token
-        // req.userId = verificationStatus._userId
-        // req.user = userInfo
         req.sessions = {
             token,
             userInfo,
