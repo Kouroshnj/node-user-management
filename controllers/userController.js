@@ -197,7 +197,7 @@ class UserController {
         return hashedPass
     }
 
-    async #userNotFound(user) {
+    #userNotFound = async (user) => {
         if (!user || user == null) {
             throw new Error(controllerMessages.User_Not_Found)
         }
