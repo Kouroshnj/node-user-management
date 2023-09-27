@@ -7,7 +7,7 @@ class UserMethods extends BaseMethods {
         super(model)
     }
 
-    createUser = async (reqBody) => {
+    createUser(reqBody) {
         return new this.model(reqBody)
     }
 

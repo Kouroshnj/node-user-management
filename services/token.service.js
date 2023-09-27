@@ -6,7 +6,7 @@ class TokenMethods extends BaseMethods {
         super(model)
     }
 
-    createToken = (token, userId) => {
+    createToken(token, userId) {
         const userToken = new this.model({
             token,
             userId

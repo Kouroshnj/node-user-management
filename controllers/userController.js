@@ -47,7 +47,7 @@ class UserController {
         }
     }
 
-    async logOut(req, res) {
+    logOut = async (req, res) => {
         try {
             const query = { token: req.sessions.token }
             await tokenMethods.deleteOne(query)
@@ -120,7 +120,7 @@ class UserController {
         }
     }
 
-    async deleteImage(req, res) {
+    deleteImage = async (req, res) => {
         try {
             const query = { userId: req.sessions.userId }
             const operation = { $unset: { avatar: "" } }
@@ -131,7 +131,7 @@ class UserController {
         }
     }
 
-    async getImage(req, res) {
+    getImage = async (req, res) => {
         try {
             const query = { userId: req.sessions.userId }
 
@@ -153,7 +153,7 @@ class UserController {
         }
     }
 
-    async #updateHandler(requestBody, requestUserId) {
+    #updateHandler = async (requestBody, requestUserId) => {
         if ("phoneNumber" in requestBody) {
             const pushQuery = { userId: requestUserId, phoneNumber: { $nin: requestBody.phoneNumber } }
             const pushOperation = { $push: { phoneNumber: requestBody.phoneNumber } }
@@ -165,13 +165,13 @@ class UserController {
         await userMethods.updateOne(setQuery, setOperation)
     }
 
-    async #removePhoneNumber(phoneNumbers, requestUserId) {
+    #removePhoneNumber = async (phoneNumbers, requestUserId) => {
         const pullQuery = { userId: requestUserId }
         const pullOperation = { $pull: { phoneNumber: { $in: phoneNumbers } } }
         await userMethods.updateOne(pullQuery, pullOperation)
     }
 
-    #userInfoData(user) {
+    #userInfoData = (user) => {
         return {
             firstName: user.firstName,
             lastName: user.lastName,
@@ -215,7 +215,7 @@ class UserController {
     }
 
 
-    #mongoServerError(value, errorValue) {
+    #mongoServerError = (value, errorValue) => {
         if (value === 11000) {
             return { condition: true, error: `${Object.keys(errorValue)} which is ${Object.values(errorValue)}, is duplicate` }
         }

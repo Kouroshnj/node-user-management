@@ -3,13 +3,13 @@ const { environmentExp } = require("../constant/consts")
 
 class AuthManagement {
 
-    generateAuthToken = async (user) => {
+    async generateAuthToken(user) {
         return await jwt.sign({ _userId: user.userId },
             process.env.SECRET_KEY,
             { expiresIn: environmentExp })
     }
 
-    verifyAuthToken = async (token) => {
+    async verifyAuthToken(token) {
         return await jwt.verify(token, process.env.SECRET_KEY)
     }
 }
