@@ -3,6 +3,7 @@ const userTokens = require("../models/userTokens")
 const UserMethods = require("../services/user.service")
 const TokenMethods = require("../services/token.service")
 const AuthManagement = require("../utils/authManagement")
+const HashingPass = require("../utils/hashingPass")
 const path = require("path");
 const bcrypt = require("bcryptjs")
 const { statusCodes, controllerMessages } = require("../constant/consts")
@@ -11,16 +12,17 @@ const { statusCodes, controllerMessages } = require("../constant/consts")
 const userMethods = new UserMethods(userModel)
 const tokenMethods = new TokenMethods(userTokens)
 const authManagement = new AuthManagement()
+const hashingPass = new HashingPass()
 
 class UserController {
 
     signUp = async (req, res) => {
         try {
-            const user = await userMethods.createUser(req.body)
-            await user.save()
+            const user = await userMethods.createDocument(req.body)
+            await userMethods.saveDocument(user)
             const token = await authManagement.generateAuthToken(user)
-            const userToken = await tokenMethods.createToken(token, user.userId)
-            await userToken.save()
+            const userToken = await tokenMethods.createDocument({ token, userId: user.userId })
+            await tokenMethods.saveDocument(userToken)
             return res.status(statusCodes.Created).send({ userInfo: this.#userInfoData(user), token })
         } catch (error) {
             await this.#duplicateError(error, res)
@@ -39,8 +41,8 @@ class UserController {
             await this.#comparePass(password, user.password)
 
             const token = await authManagement.generateAuthToken(user)
-            const userToken = await tokenMethods.createToken(token, user.userId)
-            await userToken.save()
+            const userToken = await tokenMethods.createDocument({ token, userId: user.userId })
+            await tokenMethods.saveDocument(userToken)
             res.status(statusCodes.OK).send({ user: this.#userInfoData(user), token })
         } catch (error) {
             res.status(statusCodes.Unauthorized).send({ message: error.message })
@@ -99,7 +101,7 @@ class UserController {
 
             await this.#comparePass(oldPassword, oldHashedPassword)
 
-            const hashedPassword = await this.#generatePassword(req.body.newPassword)
+            const hashedPassword = await hashingPass.hashingPassword(req.body.newPassword)
 
             const operation = { $set: { password: hashedPassword } }
             await userMethods.updateOne(query, operation)
@@ -153,20 +155,20 @@ class UserController {
         }
     }
 
-    #updateHandler = async (requestBody, requestUserId) => {
+    #updateHandler = async (requestBody, UserId) => {
         if ("phoneNumber" in requestBody) {
-            const pushQuery = { userId: requestUserId, phoneNumber: { $nin: requestBody.phoneNumber } }
+            const pushQuery = { userId: UserId, phoneNumber: { $nin: requestBody.phoneNumber } }
             const pushOperation = { $push: { phoneNumber: requestBody.phoneNumber } }
             await userMethods.updateOne(pushQuery, pushOperation)
         }
         delete requestBody.phoneNumber
-        const setQuery = { userId: requestUserId }
+        const setQuery = { userId: UserId }
         const setOperation = { $set: requestBody }
         await userMethods.updateOne(setQuery, setOperation)
     }
 
-    #removePhoneNumber = async (phoneNumbers, requestUserId) => {
-        const pullQuery = { userId: requestUserId }
+    #removePhoneNumber = async (phoneNumbers, UserId) => {
+        const pullQuery = { userId: UserId }
         const pullOperation = { $pull: { phoneNumber: { $in: phoneNumbers } } }
         await userMethods.updateOne(pullQuery, pullOperation)
     }
@@ -187,14 +189,6 @@ class UserController {
         if (!isValid) {
             throw new Error(controllerMessages.Email_Pass_Wrong)
         }
-    }
-
-    #generatePassword = async (password) => {
-
-        const salt = await bcrypt.genSalt(8)
-        const hashedPass = await bcrypt.hash(password, salt)
-
-        return hashedPass
     }
 
     #userNotFound = async (user) => {

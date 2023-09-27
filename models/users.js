@@ -1,6 +1,9 @@
 const mongoose = require("mongoose")
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require("bcryptjs")
+const HashingPass = require("../utils/hashingPass")
+
+const hashingPass = new HashingPass()
 
 
 const userSchema = new mongoose.Schema({
@@ -43,8 +46,9 @@ userSchema.pre("save", async function (next) {
             return next()
         }
         user.userId = uuidv4()
-        const salt = await bcrypt.genSalt(8)
-        user.password = await bcrypt.hash(user.password, salt)
+        user.password = await hashingPass.hashingPassword(user.password)
+        // const salt = await bcrypt.genSalt(8)
+        // user.password = await bcrypt.hash(user.password, salt)
         next()
     } catch (e) {
         next(e)

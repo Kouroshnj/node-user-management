@@ -7,10 +7,6 @@ class UserMethods extends BaseMethods {
         super(model)
     }
 
-    createUser(reqBody) {
-        return new this.model(reqBody)
-    }
-
 }
 
 module.exports = UserMethods

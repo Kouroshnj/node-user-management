@@ -5,6 +5,14 @@ class BaseMethods {
         this.model = model
     }
 
+    createDocument(object) {
+        return new this.model(object)
+    }
+
+    async saveDocument(object) {
+        return await object.save()
+    }
+
     async updateOne(query, operation) {
         return await this.model.updateOne(query, operation)
     }

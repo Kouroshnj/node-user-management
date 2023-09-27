@@ -9,21 +9,21 @@ const router = express.Router()
 const userController = new UserController()
 
 
-router.post("/users/Signup", userValidation("userValidation"), userController.signUp)
+router.post("/users/signup", userValidation("userValidation"), userController.signUp)
 
-router.post("/users/Login", userValidation("LoginValidation"), userController.logIn)
+router.post("/users/login", userValidation("LoginValidation"), userController.logIn)
 
-router.post("/users/Logout", auth, userController.logOut)
+router.post("/users/logout", auth, userController.logOut)
 
-router.route("/users/me")
+router.route("/users/profile")
     .get(auth, userController.userInfo)
     .patch([auth, userValidation("updateUserValidation")], userController.updateUser)
 
-router.delete("/users/me/delete_phoneNumber", [auth, userValidation("deletePhoneNumberValidation")], userController.removePhoneNumber)
+router.delete("/users/profile/phoneNumber", [auth, userValidation("deletePhoneNumberValidation")], userController.removePhoneNumber)
 
-router.patch("/users/me/changePassword", [auth, userValidation("changePasswordValidation")], userController.changePassword)
+router.patch("/users/profile/changePassword", [auth, userValidation("changePasswordValidation")], userController.changePassword)
 
-router.route("/users/me/image")
+router.route("/users/profile/image")
     .post(auth, upload.single("avatar"), userController.setImage)
     .delete(auth, userController.deleteImage)
     .get(auth, userController.getImage)

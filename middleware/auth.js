@@ -1,11 +1,9 @@
 const { statusCodes, authMessages } = require("../constant/consts")
-const UserMethods = require("../services/user.service")
 const TokenMethods = require("../services/token.service")
 const AuthManagement = require("../utils/authManagement")
-const userModel = require("../models/users");
 const userTokens = require("../models/userTokens")
 
-const userMethods = new UserMethods(userModel)
+
 const tokenMethods = new TokenMethods(userTokens)
 const authManagement = new AuthManagement()
 
@@ -13,20 +11,18 @@ const authManagement = new AuthManagement()
 const auth = async function (req, res, next) {
     try {
         const token = await req.header("Authorization").replace("Bearer ", "");
-        const verificationStatus = await authManagement.verifyAuthToken(token)
-        const query = { userId: verificationStatus._userId }
-        const [userInfo, userToken] = await Promise.all([
-            userMethods.findOne(query),
+        const tokenPayload = await authManagement.verifyAuthToken(token)
+        const query = { userId: tokenPayload._userId }
+        const [userToken] = await Promise.all([
             tokenMethods.findOne(query),
         ])
-        if (!userToken || userToken == null || !userInfo) {
-            return res.status(statusCodes.Not_Found).send({ message: authMessages.User_Not_Found })
+        if (!userToken || userToken == null) {
+            return res.status(statusCodes.Not_Found).send({ message: authMessages.Not_Exist })
         }
 
         req.sessions = {
             token,
-            userInfo,
-            userId: verificationStatus._userId
+            userId: tokenPayload._userId
         }
         next()
     } catch (e) {

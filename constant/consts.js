@@ -31,4 +31,5 @@ exports.userModelErrors = {
 
 exports.authMessages = {
     User_Not_Found: "User not found",
+    Not_Exist: "Token does not exist"
 }
