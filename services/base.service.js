@@ -5,7 +5,7 @@ class BaseMethods {
         this.model = model
     }
 
-    createDocument(object) {
+    async createDocument(object) {
         const document = new this.model(object)
         return document.save()
     }
