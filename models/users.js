@@ -36,12 +36,6 @@ const userSchema = new mongoose.Schema({
     }
 })
 
-userSchema.virtual("userTokens", {
-    ref: "userTokens",
-    localField: "_id",
-    foreignField: "userId"
-})
-
 userSchema.pre("save", async function (next) {
     const user = this
     try {
