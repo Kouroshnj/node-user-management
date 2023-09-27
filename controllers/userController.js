@@ -1,9 +1,9 @@
 const userModel = require("../models/users")
 const userTokens = require("../models/userTokens")
+const hashingPassword = require("../utils/hashingPass")
 const UserMethods = require("../services/user.service")
 const TokenMethods = require("../services/token.service")
 const AuthManagement = require("../utils/authManagement")
-const HashingPass = require("../utils/hashingPass")
 const path = require("path");
 const bcrypt = require("bcryptjs")
 const { statusCodes, controllerMessages } = require("../constant/consts")
@@ -12,17 +12,14 @@ const { statusCodes, controllerMessages } = require("../constant/consts")
 const userMethods = new UserMethods(userModel)
 const tokenMethods = new TokenMethods(userTokens)
 const authManagement = new AuthManagement()
-const hashingPass = new HashingPass()
 
 class UserController {
 
     signUp = async (req, res) => {
         try {
             const user = await userMethods.createDocument(req.body)
-            await userMethods.saveDocument(user)
             const token = await authManagement.generateAuthToken(user)
-            const userToken = await tokenMethods.createDocument({ token, userId: user.userId })
-            await tokenMethods.saveDocument(userToken)
+            await tokenMethods.createDocument({ token, userId: user.userId })
             return res.status(statusCodes.Created).send({ userInfo: this.#userInfoData(user), token })
         } catch (error) {
             await this.#duplicateError(error, res)
@@ -41,8 +38,7 @@ class UserController {
             await this.#comparePass(password, user.password)
 
             const token = await authManagement.generateAuthToken(user)
-            const userToken = await tokenMethods.createDocument({ token, userId: user.userId })
-            await tokenMethods.saveDocument(userToken)
+            await tokenMethods.createDocument({ token, userId: user.userId })
             res.status(statusCodes.OK).send({ user: this.#userInfoData(user), token })
         } catch (error) {
             res.status(statusCodes.Unauthorized).send({ message: error.message })
@@ -101,7 +97,7 @@ class UserController {
 
             await this.#comparePass(oldPassword, oldHashedPassword)
 
-            const hashedPassword = await hashingPass.hashingPassword(req.body.newPassword)
+            const hashedPassword = await hashingPassword(req.body.newPassword)
 
             const operation = { $set: { password: hashedPassword } }
             await userMethods.updateOne(query, operation)

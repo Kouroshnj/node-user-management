@@ -1,13 +1,10 @@
 const bcrypt = require("bcryptjs")
 
-class HashingPass {
+async function hashingPassword(password) {
+    const salt = await bcrypt.genSalt(8)
+    const hashedPass = await bcrypt.hash(password, salt)
 
-    async hashingPassword(password) {
-        const salt = await bcrypt.genSalt(8)
-        const hashedPass = await bcrypt.hash(password, salt)
-
-        return hashedPass
-    }
+    return hashedPass
 }
 
-module.exports = HashingPass
+module.exports = hashingPassword

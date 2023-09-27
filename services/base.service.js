@@ -6,23 +6,20 @@ class BaseMethods {
     }
 
     createDocument(object) {
-        return new this.model(object)
-    }
-
-    async saveDocument(object) {
-        return await object.save()
+        const document = new this.model(object)
+        return document.save()
     }
 
     async updateOne(query, operation) {
-        return await this.model.updateOne(query, operation)
+        return this.model.updateOne(query, operation)
     }
 
     async findOne(query, select) {
-        return await this.model.findOne(query).select(select)
+        return this.model.findOne(query).select(select)
     }
 
     async deleteOne(query) {
-        return await this.model.deleteOne(query)
+        return this.model.deleteOne(query)
     }
 
     async findOneAndUpdate(query, operation) {
