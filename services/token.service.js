@@ -1,10 +1,10 @@
-const BaseMethods = require("./base.service")
+const BaseService = require("./base.service")
 
-class TokenMethods extends BaseMethods {
+class TokenService extends BaseService {
 
     constructor(model) {
         super(model)
     }
 }
 
-module.exports = TokenMethods
+module.exports = TokenService

@@ -16,8 +16,8 @@ const auth = async function (req, res, next) {
         const [userToken] = await Promise.all([
             tokenMethods.findOne(query),
         ])
-        if (!userToken || userToken == null) {
-            return res.status(statusCodes.Not_Found).send({ message: authMessages.Not_Exist })
+        if (!userToken?.userId) {
+            return res.status(statusCodes.Not_Found).send({ message: authMessages.Token_Not_Exist })
         }
 
         req.sessions = {

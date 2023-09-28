@@ -16,20 +16,15 @@ exports.controllerMessages = {
     Update_Error: "Unable to update this field",
     Update_Success: "User successfuly updated",
     Unavailable_Image: "User image unavailable",
-    Change_Password: "Password successfuly changed",
+    Change_Password_Successful: "Password successfuly changed",
     Set_Image: "Image sets successfuly",
-    Email_Pass_Wrong: "Email or password is wrong",
+    Change_Password_Error: "Your password is wrong",
     Delete_Image: "Image successfuly deleted",
     Aready_Available: "Already have this value",
     PhoneNumber_Delete: "phoneNumber successfully deleted"
 }
 
-exports.userModelErrors = {
-    Email_Pass_Wrong: "Email or password is wrong",
-    User_Not_Found: "User not found"
-}
-
 exports.authMessages = {
     User_Not_Found: "User not found",
-    Not_Exist: "Token does not exist"
+    Token_Not_Exist: "Token does not exist"
 }

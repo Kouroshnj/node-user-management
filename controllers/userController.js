@@ -1,25 +1,25 @@
 const userModel = require("../models/users")
 const userTokens = require("../models/userTokens")
 const hashingPassword = require("../utils/hashingPass")
-const UserMethods = require("../services/user.service")
-const TokenMethods = require("../services/token.service")
+const UserService = require("../services/user.service")
+const TokenService = require("../services/token.service")
 const AuthManagement = require("../utils/authManagement")
 const path = require("path");
 const bcrypt = require("bcryptjs")
 const { statusCodes, controllerMessages } = require("../constant/consts")
 
 
-const userMethods = new UserMethods(userModel)
-const tokenMethods = new TokenMethods(userTokens)
+const userService = new UserService(userModel)
+const tokenService = new TokenService(userTokens)
 const authManagement = new AuthManagement()
 
 class UserController {
 
     signUp = async (req, res) => {
         try {
-            const user = await userMethods.createDocument(req.body)
+            const user = await userService.createDocument(req.body)
             const token = await authManagement.generateAuthToken(user)
-            await tokenMethods.createDocument({ token, userId: user.userId })
+            await tokenService.createDocument({ token, userId: user.userId })
             return res.status(statusCodes.Created).send({ userInfo: this.#userInfoData(user), token })
         } catch (error) {
             await this.#duplicateError(error, res)
@@ -31,14 +31,14 @@ class UserController {
             const { email, password } = req.body;
             const query = { email }
 
-            const user = await userMethods.findOne(query)
+            const user = await userService.findOne(query)
 
-            await this.#userNotFound(user)
+            await this.#checkUserExistence(user)
 
             await this.#comparePass(password, user.password)
 
             const token = await authManagement.generateAuthToken(user)
-            await tokenMethods.createDocument({ token, userId: user.userId })
+            await tokenService.createDocument({ token, userId: user.userId })
             res.status(statusCodes.OK).send({ user: this.#userInfoData(user), token })
         } catch (error) {
             res.status(statusCodes.Unauthorized).send({ message: error.message })
@@ -48,7 +48,7 @@ class UserController {
     logOut = async (req, res) => {
         try {
             const query = { token: req.sessions.token }
-            await tokenMethods.deleteOne(query)
+            await tokenService.deleteOne(query)
             res.status(statusCodes.Created).send({ message: controllerMessages.User_Log_Out })
         } catch (error) {
             res.status(statusCodes.Not_Found).send({ message: error.message })
@@ -57,11 +57,11 @@ class UserController {
 
     userInfo = async (req, res) => {
         try {
-            const select = "firstName lastName parent phoneNumber nationalCode"
+            const select = "firstName lastName parent phoneNumber nationalCode userId"
             const query = { userId: req.sessions.userId }
-            const user = await userMethods.findOne(query, select)
-            await this.#userNotFound(user)
-            return res.status(statusCodes.OK).send(user)
+            const user = await userService.findOne(query, select)
+            await this.#checkUserExistence(user)
+            return res.status(statusCodes.OK).send(this.#userInfoData(user))
         } catch (error) {
             res.status(statusCodes.Not_Found).send({ message: error.message })
         }
@@ -78,7 +78,9 @@ class UserController {
 
     removePhoneNumber = async (req, res) => {
         try {
-            await this.#removePhoneNumber(req.body.phoneNumber, req.sessions.userId)
+            const pullQuery = { userId: req.sessions.userId }
+            const pullOperation = { $pull: { phoneNumber: { $in: req.body.phoneNumber } } }
+            await userService.updateOne(pullQuery, pullOperation)
             res.status(statusCodes.Created).send({ message: controllerMessages.PhoneNumber_Delete })
         } catch (error) {
             res.status(statusCodes.Not_Acceptable).send({ message: error.message })
@@ -87,21 +89,21 @@ class UserController {
 
     changePassword = async (req, res) => {
         try {
-            const { email, oldPassword } = req.body
-            const query = { email }
-            const select = "email password"
+            const { oldPassword, newPassword } = req.body
+            const query = { userId: req.sessions.userId }
+            const select = "password userId"
 
-            const user = await userMethods.findOne(query, select)
-            await this.#userNotFound(user)
-            const oldHashedPassword = await user.password
+            const user = await userService.findOne(query, select)
+            await this.#checkUserExistence(user)
+            const oldHashedPassword = user.password
 
             await this.#comparePass(oldPassword, oldHashedPassword)
 
-            const hashedPassword = await hashingPassword(req.body.newPassword)
+            const newHashedPassword = await hashingPassword(newPassword)
 
-            const operation = { $set: { password: hashedPassword } }
-            await userMethods.updateOne(query, operation)
-            res.status(statusCodes.Created).send({ message: controllerMessages.Change_Password })
+            const operation = { $set: { password: newHashedPassword } }
+            await userService.updateOne(query, operation)
+            res.status(statusCodes.Created).send({ message: controllerMessages.Change_Password_Successful })
         } catch (error) {
             res.status(statusCodes.Unauthorized).send({ message: error.message })
         }
@@ -111,7 +113,7 @@ class UserController {
         try {
             const query = { userId: req.sessions.userId }
             const operation = { $set: { avatar: req.file.originalname } }
-            await userMethods.findOneAndUpdate(query, operation)
+            await userService.findOneAndUpdate(query, operation)
             res.status(statusCodes.Created).send({ message: controllerMessages.Set_Image })
         } catch (error) {
             res.status(statusCodes.Bad_Request).send({ message: error.message })
@@ -122,7 +124,7 @@ class UserController {
         try {
             const query = { userId: req.sessions.userId }
             const operation = { $unset: { avatar: "" } }
-            await userMethods.updateOne(query, operation)
+            await userService.updateOne(query, operation)
             res.status(statusCodes.Created).send({ message: controllerMessages.Delete_Image })
         } catch (error) {
             res.status(statusCodes.Bad_Request).send({ message: error.message })
@@ -133,9 +135,10 @@ class UserController {
         try {
             const query = { userId: req.sessions.userId }
 
-            const user = await userMethods.findOne(query)
+            const user = await userService.findOne(query)
 
-            if (!user || !user.avatar) {
+
+            if (!user?.avatar) {
                 return res.status(statusCodes.Not_Found).send({ message: controllerMessages.Unavailable_Image })
             }
 
@@ -151,22 +154,16 @@ class UserController {
         }
     }
 
-    #updateHandler = async (requestBody, UserId) => {
-        if ("phoneNumber" in requestBody) {
-            const pushQuery = { userId: UserId, phoneNumber: { $nin: requestBody.phoneNumber } }
-            const pushOperation = { $push: { phoneNumber: requestBody.phoneNumber } }
-            await userMethods.updateOne(pushQuery, pushOperation)
+    #updateHandler = async (body, userId) => {
+        if ("phoneNumber" in body) {
+            const pushQuery = { userId, phoneNumber: { $nin: body.phoneNumber } }
+            const pushOperation = { $push: { phoneNumber: body.phoneNumber } }
+            await userService.updateOne(pushQuery, pushOperation)
         }
-        delete requestBody.phoneNumber
-        const setQuery = { userId: UserId }
-        const setOperation = { $set: requestBody }
-        await userMethods.updateOne(setQuery, setOperation)
-    }
-
-    #removePhoneNumber = async (phoneNumbers, UserId) => {
-        const pullQuery = { userId: UserId }
-        const pullOperation = { $pull: { phoneNumber: { $in: phoneNumbers } } }
-        await userMethods.updateOne(pullQuery, pullOperation)
+        delete body.phoneNumber
+        const setQuery = { userId }
+        const setOperation = { $set: body }
+        await userService.updateOne(setQuery, setOperation)
     }
 
     #userInfoData = (user) => {
@@ -183,12 +180,12 @@ class UserController {
         const isValid = await bcrypt.compare(oldPassword, oldHashedPassword)
 
         if (!isValid) {
-            throw new Error(controllerMessages.Email_Pass_Wrong)
+            throw new Error(controllerMessages.Change_Password_Error)
         }
     }
 
-    #userNotFound = async (user) => {
-        if (!user || user == null) {
+    #checkUserExistence = async (user) => {
+        if (!user?.userId) {
             throw new Error(controllerMessages.User_Not_Found)
         }
     }

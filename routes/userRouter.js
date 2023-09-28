@@ -1,7 +1,7 @@
 const express = require("express");
 const auth = require("../middleware/auth")
 const UserController = require("../controllers/userController")
-const userValidation = require("../middleware/validate")
+const validation = require("../middleware/validate")
 const upload = require("../middleware/upload")
 
 const router = express.Router()
@@ -9,19 +9,19 @@ const router = express.Router()
 const userController = new UserController()
 
 
-router.post("/users/signup", userValidation("userValidation"), userController.signUp)
+router.post("/users/signup", validation("userValidation"), userController.signUp)
 
-router.post("/users/login", userValidation("LoginValidation"), userController.logIn)
+router.post("/users/login", validation("LoginValidation"), userController.logIn)
 
 router.post("/users/logout", auth, userController.logOut)
 
 router.route("/users/profile")
     .get(auth, userController.userInfo)
-    .patch([auth, userValidation("updateUserValidation")], userController.updateUser)
+    .patch([auth, validation("updateUserValidation")], userController.updateUser)
 
-router.delete("/users/profile/phoneNumber", [auth, userValidation("deletePhoneNumberValidation")], userController.removePhoneNumber)
+router.delete("/users/profile/phoneNumber", [auth, validation("deletePhoneNumberValidation")], userController.removePhoneNumber)
 
-router.patch("/users/profile/changePassword", [auth, userValidation("changePasswordValidation")], userController.changePassword)
+router.patch("/users/profile/changePassword", [auth, validation("changePasswordValidation")], userController.changePassword)
 
 router.route("/users/profile/image")
     .post(auth, upload.single("avatar"), userController.setImage)

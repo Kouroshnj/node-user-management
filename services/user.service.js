@@ -1,7 +1,7 @@
-const BaseMethods = require("./base.service")
+const BaseService = require("./base.service")
 
 
-class UserMethods extends BaseMethods {
+class UserService extends BaseService {
 
     constructor(model) {
         super(model)
@@ -9,4 +9,4 @@ class UserMethods extends BaseMethods {
 
 }
 
-module.exports = UserMethods
+module.exports = UserService

@@ -1,5 +1,5 @@
 
-class BaseMethods {
+class BaseService {
 
     constructor(model) {
         this.model = model
@@ -15,7 +15,7 @@ class BaseMethods {
     }
 
     async findOne(query, select) {
-        return this.model.findOne(query).select(select)
+        return this.model.findOne(query).select(select).lean()
     }
 
     async deleteOne(query) {
@@ -27,4 +27,4 @@ class BaseMethods {
     }
 }
 
-module.exports = BaseMethods
+module.exports = BaseService

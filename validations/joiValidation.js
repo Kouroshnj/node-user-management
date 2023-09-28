@@ -17,7 +17,6 @@ const LoginValidation = joi.object({
 })
 
 const changePasswordValidation = joi.object({
-    email: joi.string().required().email().trim(),
     oldPassword: joi.string().required().min(7).trim(),
     newPassword: joi.string().required().min(7).trim()
 })
