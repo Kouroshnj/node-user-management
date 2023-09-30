@@ -2,6 +2,7 @@ const { statusCodes, authMessages } = require("../constant/consts")
 const TokenMethods = require("../services/token.service")
 const AuthManagement = require("../utils/authManagement")
 const userTokens = require("../models/userTokens")
+const metaData = require("../constant/metaData")
 
 
 const tokenMethods = new TokenMethods(userTokens)
@@ -17,7 +18,8 @@ const auth = async function (req, res, next) {
             tokenMethods.findOne(query),
         ])
         if (!userToken?.userId) {
-            return res.status(statusCodes.Not_Found).send({ message: authMessages.Token_Not_Exist })
+            return res.status(statusCodes.Not_Found).send({ message: authMessages.Token_Not_Exist, metaData })
+
         }
 
         req.sessions = {
@@ -26,7 +28,7 @@ const auth = async function (req, res, next) {
         }
         next()
     } catch (e) {
-        res.status(statusCodes.Not_Found).send({ error: e.message })
+        res.status(statusCodes.Not_Found).send({ error: e.message, metaData })
     }
 }
 

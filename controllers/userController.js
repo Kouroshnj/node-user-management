@@ -4,6 +4,7 @@ const hashingPassword = require("../utils/hashingPass")
 const UserService = require("../services/user.service")
 const TokenService = require("../services/token.service")
 const AuthManagement = require("../utils/authManagement")
+const metaData = require("../constant/metaData")
 const path = require("path");
 const bcrypt = require("bcryptjs")
 const { statusCodes, controllerMessages } = require("../constant/consts")
@@ -19,7 +20,7 @@ class UserController {
         try {
             const user = await userService.createDocument(req.body)
             const token = await authManagement.generateAuthToken(user)
-            await tokenService.createDocument({ token, userId: user.userId })
+            await tokenService.createDocument({ token, userId: user.userId, createdAt: new Date().getTime() })
             return res.status(statusCodes.Created).send({ userInfo: this.#userInfoData(user), token })
         } catch (error) {
             await this.#duplicateError(error, res)
@@ -38,10 +39,10 @@ class UserController {
             await this.#comparePass(password, user.password)
 
             const token = await authManagement.generateAuthToken(user)
-            await tokenService.createDocument({ token, userId: user.userId })
+            await tokenService.createDocument({ token, userId: user.userId, createdAt: new Date().getTime() })
             res.status(statusCodes.OK).send({ user: this.#userInfoData(user), token })
         } catch (error) {
-            res.status(statusCodes.Unauthorized).send({ message: error.message })
+            res.status(statusCodes.Unauthorized).send({ message: error.message, metaData })
         }
     }
 
@@ -49,9 +50,9 @@ class UserController {
         try {
             const query = { token: req.sessions.token }
             await tokenService.deleteOne(query)
-            res.status(statusCodes.Created).send({ message: controllerMessages.User_Log_Out })
+            res.status(statusCodes.OK).send({ message: controllerMessages.User_Log_Out })
         } catch (error) {
-            res.status(statusCodes.Not_Found).send({ message: error.message })
+            res.status(statusCodes.Inrernal_Server_Error).send({ message: error.message, metaData })
         }
     }
 
@@ -63,14 +64,14 @@ class UserController {
             await this.#checkUserExistence(user)
             return res.status(statusCodes.OK).send(this.#userInfoData(user))
         } catch (error) {
-            res.status(statusCodes.Not_Found).send({ message: error.message })
+            res.status(statusCodes.Not_Found).send({ message: error.message, metaData })
         }
     }
 
     updateUser = async (req, res) => {
         try {
             await this.#updateHandler(req.body, req.sessions.userId)
-            res.status(statusCodes.Created).send({ message: controllerMessages.Update_Success })
+            res.status(statusCodes.OK).send({ message: controllerMessages.Update_Success })
         } catch (error) {
             await this.#duplicateError(error, res)
         }
@@ -83,7 +84,7 @@ class UserController {
             await userService.updateOne(pullQuery, pullOperation)
             res.status(statusCodes.Created).send({ message: controllerMessages.PhoneNumber_Delete })
         } catch (error) {
-            res.status(statusCodes.Not_Acceptable).send({ message: error.message })
+            res.status(statusCodes.Inrernal_Server_Error).send({ message: error.message, metaData })
         }
     }
 
@@ -103,9 +104,9 @@ class UserController {
 
             const operation = { $set: { password: newHashedPassword } }
             await userService.updateOne(query, operation)
-            res.status(statusCodes.Created).send({ message: controllerMessages.Change_Password_Successful })
+            res.status(statusCodes.OK).send({ message: controllerMessages.Change_Password_Successful })
         } catch (error) {
-            res.status(statusCodes.Unauthorized).send({ message: error.message })
+            res.status(statusCodes.Bad_Request).send({ message: error.message, metaData })
         }
     }
 
@@ -114,9 +115,9 @@ class UserController {
             const query = { userId: req.sessions.userId }
             const operation = { $set: { avatar: req.file.originalname } }
             await userService.findOneAndUpdate(query, operation)
-            res.status(statusCodes.Created).send({ message: controllerMessages.Set_Image })
+            res.status(statusCodes.OK).send({ message: controllerMessages.Set_Image })
         } catch (error) {
-            res.status(statusCodes.Bad_Request).send({ message: error.message })
+            res.status(statusCodes.Unprocessable).send({ message: error.message, metaData })
         }
     }
 
@@ -125,9 +126,9 @@ class UserController {
             const query = { userId: req.sessions.userId }
             const operation = { $unset: { avatar: "" } }
             await userService.updateOne(query, operation)
-            res.status(statusCodes.Created).send({ message: controllerMessages.Delete_Image })
+            res.status(statusCodes.OK).send({ message: controllerMessages.Delete_Image })
         } catch (error) {
-            res.status(statusCodes.Bad_Request).send({ message: error.message })
+            res.status(statusCodes.Inrernal_Server_Error).send({ message: error.message, metaData })
         }
     }
 
@@ -139,18 +140,18 @@ class UserController {
 
 
             if (!user?.avatar) {
-                return res.status(statusCodes.Not_Found).send({ message: controllerMessages.Unavailable_Image })
+                return res.status(statusCodes.Not_Found).send({ message: controllerMessages.Unavailable_Image, metaData })
             }
 
             const root = path.resolve(process.cwd(), "avatars", user.avatar)
 
             res.sendFile(root, (err) => {
                 if (err) {
-                    return res.status(statusCodes.Not_Found).send(controllerMessages.Unavailable_Image)
+                    return res.status(statusCodes.Not_Found).send({ message: controllerMessages.Unavailable_Image, metaData })
                 }
             })
-        } catch (e) {
-            res.status(statusCodes.Not_Found).send({ message: e.message })
+        } catch (error) {
+            res.status(statusCodes.Not_Found).send({ message: error.message, metaData })
         }
     }
 
@@ -180,13 +181,13 @@ class UserController {
         const isValid = await bcrypt.compare(oldPassword, oldHashedPassword)
 
         if (!isValid) {
-            throw new Error(controllerMessages.Change_Password_Error)
+            throw new Error(controllerMessages.Email_Pass_Wrong)
         }
     }
 
     #checkUserExistence = async (user) => {
         if (!user?.userId) {
-            throw new Error(controllerMessages.User_Not_Found)
+            throw new Error(controllerMessages.Email_Pass_Wrong)
         }
     }
 
@@ -197,7 +198,7 @@ class UserController {
                 message: IsServerError.error
             })
         } else {
-            response.status(statusCodes.Bad_Request).send({ message: error.message })
+            response.status(statusCodes.Bad_Request).send({ message: error.message, metaData })
         }
     }
 

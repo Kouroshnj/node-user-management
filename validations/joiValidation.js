@@ -3,7 +3,7 @@ const joi = require("joi")
 const userValidation = joi.object({
     firstName: joi.string().required().trim(),
     lastName: joi.string().required().trim(),
-    age: joi.number().required(),
+    age: joi.number().strict().required(),
     parent: joi.string().required().trim(),
     email: joi.string().required().email().trim(),
     password: joi.string().required().min(7).trim(),
@@ -24,7 +24,7 @@ const changePasswordValidation = joi.object({
 const updateUserValidation = joi.object({
     firstName: joi.string().trim(),
     lastName: joi.string().trim(),
-    age: joi.number(),
+    age: joi.number().strict(),
     parent: joi.string().trim(),
     email: joi.string().email().trim(),
     phoneNumber: joi.array().unique().items(joi.string().length(11).trim()),

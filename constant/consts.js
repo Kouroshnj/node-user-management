@@ -5,7 +5,9 @@ exports.statusCodes = {
     Unauthorized: 401,
     Not_Found: 404,
     Not_Acceptable: 406,
-    Conflict: 409
+    Conflict: 409,
+    Unprocessable: 422,
+    Inrernal_Server_Error: 500
 }
 
 exports.environmentExp = parseInt(process.env.EXP)
@@ -18,6 +20,7 @@ exports.controllerMessages = {
     Change_Password_Successful: "Password successfuly changed",
     Set_Image: "Image sets successfuly",
     Change_Password_Error: "Your password is wrong",
+    Email_Pass_Wrong: "Email or password is wrong",
     Delete_Image: "Image successfuly deleted",
     PhoneNumber_Delete: "phoneNumber successfully deleted"
 }

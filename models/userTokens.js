@@ -1,6 +1,7 @@
 const { environmentExp } = require("../constant/consts")
 const mongoose = require("mongoose")
 
+
 const tokenSchema = new mongoose.Schema({
     token: {
         type: String,
@@ -11,8 +12,7 @@ const tokenSchema = new mongoose.Schema({
         required: true
     },
     createdAt: {
-        type: Number,
-        default: Date.now()
+        type: Date
     }
 })
 
@@ -21,3 +21,8 @@ const userTokens = mongoose.model("userTokens", tokenSchema)
 userTokens.collection.createIndex({ createdAt: 1 }, { expireAfterSeconds: environmentExp })
 
 module.exports = userTokens
+
+//1696061794
+//1696062525325
+//1696061556621
+//

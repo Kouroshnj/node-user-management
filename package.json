@@ -1,9 +1,10 @@
 {
-  "name": "nodejs",
+  "name": "user_microservice",
   "version": "1.0.0",
-  "description": "Complete Node.js Guide",
+  "description": "user microservice instance",
   "main": "app.js",
   "scripts": {
+    "check": "node check.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon app.js",
     "start-server": "node app.js"
