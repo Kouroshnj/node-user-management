@@ -1,27 +1,33 @@
 const express = require("express");
 const auth = require("../middleware/auth")
-const userController = require("../controllers/userController")
+const UserController = require("../controllers/userController")
+const validation = require("../middleware/validate")
 const upload = require("../middleware/upload")
 
 const router = express.Router()
 
+const userController = new UserController()
 
-router.post("/users/Signup", userController.Signup)
 
-router.post("/users/Login", userController.Login)
+router.post("/users/signup", validation("userValidation"), userController.signUp)
 
-router.post("/users/Logout", auth, userController.Logout)
+router.post("/users/login", validation("LoginValidation"), userController.logIn)
 
-router.get("/users/me", auth, userController.userInfo)
+router.post("/users/logout", auth, userController.logOut)
 
-router.patch("/users/me", auth, userController.updateUser)
+router.route("/users/profile")
+    .get(auth, userController.userInfo)
+    .patch([auth, validation("updateUserValidation")], userController.updateUser)
 
-router.post("/users/me/changePassword", auth, userController.changePassword)
+router.delete("/users/profile/phoneNumber", [auth, validation("deletePhoneNumberValidation")], userController.removePhoneNumber)
 
-router.post("/users/me/image", auth, upload.single("avatar"), userController.setImage)
+router.patch("/users/profile/changePassword", [auth, validation("changePasswordValidation")], userController.changePassword)
 
-router.delete("/users/me/image", auth, userController.deleteImage)
+router.route("/users/profile/image")
+    .post(auth, upload.single("avatar"), userController.setImage)
+    .delete(auth, userController.deleteImage)
+    .get(auth, userController.getImage)
 
-router.get("/users/:id/avatar", auth, userController.getImage)
+
 
 module.exports = router

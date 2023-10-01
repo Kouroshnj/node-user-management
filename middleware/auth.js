@@ -1,27 +1,34 @@
-const jwt = require("jsonwebtoken");
-const User = require("../src/models/users")
-const Tokens = require("../src/models/userTokens")
+const { statusCodes, authMessages } = require("../constant/consts")
+const TokenMethods = require("../services/token.service")
+const AuthManagement = require("../utils/authManagement")
+const userTokens = require("../models/userTokens")
+const metaData = require("../constant/metaData")
+
+
+const tokenMethods = new TokenMethods(userTokens)
+const authManagement = new AuthManagement()
 
 
 const auth = async function (req, res, next) {
     try {
         const token = await req.header("Authorization").replace("Bearer ", "");
-        const verification = jwt.verify(token, "thisismynodeproject")
-        const user = await User.findOne({ _id: verification._id })
-        const userToken = await Tokens.findOne({ owner: user._id })
+        const tokenPayload = await authManagement.verifyAuthToken(token)
+        const query = { userId: tokenPayload._userId }
+        const [userToken] = await Promise.all([
+            tokenMethods.findOne(query),
+        ])
+        if (!userToken?.userId) {
+            return res.status(statusCodes.Not_Found).send({ message: authMessages.Token_Not_Exist, metaData })
 
-        if (!userToken) {
-            res.status(404).send("Unable to find user")
         }
 
-        if (!user) {
-            res.status(404).send("User not found")
+        req.sessions = {
+            token,
+            userId: tokenPayload._userId
         }
-        req.token = token
-        req.user = user
         next()
     } catch (e) {
-        res.status(404).send({ error: e })
+        res.status(statusCodes.Not_Found).send({ error: e.message, metaData })
     }
 }
 

@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
+require("dotenv").config()
 
 // Connect to the MongoDB database
-mongoose.connect('mongodb://127.0.0.1:27017/users-information')
-
-
+mongoose.connect(process.env.SECRET_URL)
