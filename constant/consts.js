@@ -13,19 +13,16 @@ exports.statusCodes = {
 exports.environmentExp = parseInt(process.env.EXP)
 
 exports.controllerMessages = {
-    User_Not_Found: "User not found",
     User_Log_Out: "User successfuly logged out",
     Update_Success: "User successfuly updated",
     Unavailable_Image: "User image unavailable",
     Change_Password_Successful: "Password successfuly changed",
     Set_Image: "Image sets successfuly",
-    Change_Password_Error: "Your password is wrong",
     Email_Pass_Wrong: "Email or password is wrong",
     Delete_Image: "Image successfuly deleted",
     PhoneNumber_Delete: "phoneNumber successfully deleted"
 }
 
 exports.authMessages = {
-    User_Not_Found: "User not found",
     Token_Not_Exist: "Token does not exist"
 }
