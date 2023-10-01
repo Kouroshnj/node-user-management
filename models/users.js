@@ -45,8 +45,8 @@ userSchema.pre("save", async function (next) {
         user.userId = uuidv4()
         user.password = await hashingPassword(user.password)
         next()
-    } catch (e) {
-        next(e)
+    } catch (error) {
+        next(error)
     }
 })
 

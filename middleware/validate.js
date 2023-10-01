@@ -1,5 +1,5 @@
 const Schemas = require("../validations/joiValidation");
-const metaData = require("../constant/metaData")
+const meta = require("../constant/meta")
 
 const validate = function (schema) {
     return async function (req, res, next) {
@@ -7,11 +7,11 @@ const validate = function (schema) {
             const { error } = await Schemas[schema].validateAsync(req.body);
             if (error) {
                 const errorMessage = error.details[0].message
-                return res.status(400).json({ message: errorMessage, metaData })
+                return res.status(400).json({ data: errorMessage, meta })
             }
             next()
         } catch (error) {
-            res.status(400).json({ message: error.message, metaData })
+            res.status(400).json({ data: error.message, meta })
         }
     }
 }

@@ -1,5 +1,6 @@
 const { environmentExp } = require("../constant/consts")
 const mongoose = require("mongoose")
+const { getIsoDate, getUnixTimestamp } = require("../utils/getDate")
 
 
 const tokenSchema = new mongoose.Schema({
@@ -16,6 +17,17 @@ const tokenSchema = new mongoose.Schema({
     },
     expireAt: {
         type: Date
+    }
+})
+
+tokenSchema.pre("save", async function (next) {
+    const userToken = this
+    try {
+        userToken.createdAt = getUnixTimestamp()
+        userToken.expireAt = getIsoDate()
+        next()
+    } catch (error) {
+        next(error)
     }
 })
 

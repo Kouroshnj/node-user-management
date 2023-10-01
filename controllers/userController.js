@@ -4,7 +4,7 @@ const hashingPassword = require("../utils/hashingPass")
 const UserService = require("../services/user.service")
 const TokenService = require("../services/token.service")
 const AuthManagement = require("../utils/authManagement")
-const metaData = require("../constant/metaData")
+const meta = require("../constant/meta")
 const { getUnixTimestamp, getIsoDate } = require("../utils/getDate")
 const path = require("path");
 const bcrypt = require("bcryptjs")
@@ -21,8 +21,8 @@ class UserController {
         try {
             const user = await userService.createDocument(req.body)
             const token = await authManagement.generateAuthToken(user)
-            await tokenService.createDocument({ token, userId: user.userId, createdAt: getUnixTimestamp(), expireAt: getIsoDate() })
-            return res.status(statusCodes.Created).send({ userInfo: this.#userInfoData(user), token, metaData })
+            await tokenService.createDocument({ token, userId: user.userId })
+            return res.status(statusCodes.Created).send({ data: this.#userInfoData(user), token, meta })
         } catch (error) {
             await this.#duplicateError(error, res)
         }
@@ -40,10 +40,10 @@ class UserController {
             await this.#comparePass(password, user.password)
 
             const token = await authManagement.generateAuthToken(user)
-            await tokenService.createDocument({ token, userId: user.userId, createdAt: getUnixTimestamp(), expireAt: getIsoDate() })
-            res.status(statusCodes.OK).send({ user: this.#userInfoData(user), token, metaData })
+            await tokenService.createDocument({ token, userId: user.userId })
+            res.status(statusCodes.OK).send({ data: this.#userInfoData(user), token, meta })
         } catch (error) {
-            res.status(statusCodes.Unauthorized).send({ message: error.message, metaData })
+            res.status(statusCodes.Unauthorized).send({ data: error.message, meta })
         }
     }
 
@@ -51,9 +51,9 @@ class UserController {
         try {
             const query = { token: req.sessions.token }
             await tokenService.deleteOne(query)
-            res.status(statusCodes.OK).send({ message: controllerMessages.User_Log_Out, metaData })
+            res.status(statusCodes.OK).send({ data: controllerMessages.User_Log_Out, meta })
         } catch (error) {
-            res.status(statusCodes.Inrernal_Server_Error).send({ message: error.message, metaData })
+            res.status(statusCodes.Inrernal_Server_Error).send({ data: error.message, meta })
         }
     }
 
@@ -63,16 +63,16 @@ class UserController {
             const query = { userId: req.sessions.userId }
             const user = await userService.findOne(query, select)
             await this.#checkUserExistence(user)
-            return res.status(statusCodes.OK).send({ userInfo: this.#userInfoData(user), metaData })
+            return res.status(statusCodes.OK).send({ userInfo: this.#userInfoData(user), meta })
         } catch (error) {
-            res.status(statusCodes.Not_Found).send({ message: error.message, metaData })
+            res.status(statusCodes.Not_Found).send({ data: error.message, meta })
         }
     }
 
     updateUser = async (req, res) => {
         try {
             await this.#updateHandler(req.body, req.sessions.userId)
-            res.status(statusCodes.OK).send({ message: controllerMessages.Update_Success, metaData })
+            res.status(statusCodes.OK).send({ data: controllerMessages.Update_Success, meta })
         } catch (error) {
             await this.#duplicateError(error, res)
         }
@@ -83,9 +83,9 @@ class UserController {
             const pullQuery = { userId: req.sessions.userId }
             const pullOperation = { $pull: { phoneNumber: { $in: req.body.phoneNumber } } }
             await userService.updateOne(pullQuery, pullOperation)
-            res.status(statusCodes.Created).send({ message: controllerMessages.PhoneNumber_Delete, metaData })
+            res.status(statusCodes.Created).send({ data: controllerMessages.PhoneNumber_Delete, meta })
         } catch (error) {
-            res.status(statusCodes.Inrernal_Server_Error).send({ message: error.message, metaData })
+            res.status(statusCodes.Inrernal_Server_Error).send({ data: error.message, meta })
         }
     }
 
@@ -105,9 +105,9 @@ class UserController {
 
             const operation = { $set: { password: newHashedPassword } }
             await userService.updateOne(query, operation)
-            res.status(statusCodes.OK).send({ message: controllerMessages.Change_Password_Successful, metaData })
+            res.status(statusCodes.OK).send({ data: controllerMessages.Change_Password_Successful, meta })
         } catch (error) {
-            res.status(statusCodes.Bad_Request).send({ message: error.message, metaData })
+            res.status(statusCodes.Bad_Request).send({ data: error.message, meta })
         }
     }
 
@@ -116,9 +116,9 @@ class UserController {
             const query = { userId: req.sessions.userId }
             const operation = { $set: { avatar: req.file.originalname } }
             await userService.findOneAndUpdate(query, operation)
-            res.status(statusCodes.OK).send({ message: controllerMessages.Set_Image, metaData })
+            res.status(statusCodes.OK).send({ data: controllerMessages.Set_Image, meta })
         } catch (error) {
-            res.status(statusCodes.Unprocessable).send({ message: error.message, metaData })
+            res.status(statusCodes.Unprocessable).send({ data: error.message, meta })
         }
     }
 
@@ -127,9 +127,9 @@ class UserController {
             const query = { userId: req.sessions.userId }
             const operation = { $unset: { avatar: "" } }
             await userService.updateOne(query, operation)
-            res.status(statusCodes.OK).send({ message: controllerMessages.Delete_Image, metaData })
+            res.status(statusCodes.OK).send({ data: controllerMessages.Delete_Image, meta })
         } catch (error) {
-            res.status(statusCodes.Inrernal_Server_Error).send({ message: error.message, metaData })
+            res.status(statusCodes.Inrernal_Server_Error).send({ data: error.message, meta })
         }
     }
 
@@ -141,18 +141,18 @@ class UserController {
 
 
             if (!user?.avatar) {
-                return res.status(statusCodes.Not_Found).send({ message: controllerMessages.Unavailable_Image, metaData })
+                return res.status(statusCodes.Not_Found).send({ data: controllerMessages.Unavailable_Image, meta })
             }
 
             const root = path.resolve(process.cwd(), "avatars", user.avatar)
 
             res.sendFile(root, (err) => {
                 if (err) {
-                    return res.status(statusCodes.Not_Found).send({ message: controllerMessages.Unavailable_Image, metaData })
+                    return res.status(statusCodes.Not_Found).send({ data: controllerMessages.Unavailable_Image, meta })
                 }
             })
         } catch (error) {
-            res.status(statusCodes.Not_Found).send({ message: error.message, metaData })
+            res.status(statusCodes.Not_Found).send({ data: error.message, meta })
         }
     }
 
@@ -196,11 +196,11 @@ class UserController {
         const IsServerError = this.#mongoServerError(error.code, error.keyValue)
         if (IsServerError.condition) {
             return response.status(statusCodes.Conflict).send({
-                message: IsServerError.error,
-                metaData
+                data: IsServerError.error,
+                meta
             })
         } else {
-            response.status(statusCodes.Bad_Request).send({ message: error.message, metaData })
+            response.status(statusCodes.Bad_Request).send({ data: error.message, meta })
         }
     }
 
