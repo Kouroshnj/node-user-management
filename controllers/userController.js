@@ -5,6 +5,7 @@ const UserService = require("../services/user.service")
 const TokenService = require("../services/token.service")
 const AuthManagement = require("../utils/authManagement")
 const metaData = require("../constant/metaData")
+const { getUnixTimestamp, getIsoDate } = require("../utils/getDate")
 const path = require("path");
 const bcrypt = require("bcryptjs")
 const { statusCodes, controllerMessages } = require("../constant/consts")
@@ -20,8 +21,8 @@ class UserController {
         try {
             const user = await userService.createDocument(req.body)
             const token = await authManagement.generateAuthToken(user)
-            await tokenService.createDocument({ token, userId: user.userId, createdAt: new Date().getTime() })
-            return res.status(statusCodes.Created).send({ userInfo: this.#userInfoData(user), token })
+            await tokenService.createDocument({ token, userId: user.userId, createdAt: getUnixTimestamp(), expireAt: getIsoDate() })
+            return res.status(statusCodes.Created).send({ userInfo: this.#userInfoData(user), token, metaData })
         } catch (error) {
             await this.#duplicateError(error, res)
         }
@@ -39,8 +40,8 @@ class UserController {
             await this.#comparePass(password, user.password)
 
             const token = await authManagement.generateAuthToken(user)
-            await tokenService.createDocument({ token, userId: user.userId, createdAt: new Date().getTime() })
-            res.status(statusCodes.OK).send({ user: this.#userInfoData(user), token })
+            await tokenService.createDocument({ token, userId: user.userId, createdAt: getUnixTimestamp(), expireAt: getIsoDate() })
+            res.status(statusCodes.OK).send({ user: this.#userInfoData(user), token, metaData })
         } catch (error) {
             res.status(statusCodes.Unauthorized).send({ message: error.message, metaData })
         }
@@ -50,7 +51,7 @@ class UserController {
         try {
             const query = { token: req.sessions.token }
             await tokenService.deleteOne(query)
-            res.status(statusCodes.OK).send({ message: controllerMessages.User_Log_Out })
+            res.status(statusCodes.OK).send({ message: controllerMessages.User_Log_Out, metaData })
         } catch (error) {
             res.status(statusCodes.Inrernal_Server_Error).send({ message: error.message, metaData })
         }
@@ -62,7 +63,7 @@ class UserController {
             const query = { userId: req.sessions.userId }
             const user = await userService.findOne(query, select)
             await this.#checkUserExistence(user)
-            return res.status(statusCodes.OK).send(this.#userInfoData(user))
+            return res.status(statusCodes.OK).send({ userInfo: this.#userInfoData(user), metaData })
         } catch (error) {
             res.status(statusCodes.Not_Found).send({ message: error.message, metaData })
         }
@@ -71,7 +72,7 @@ class UserController {
     updateUser = async (req, res) => {
         try {
             await this.#updateHandler(req.body, req.sessions.userId)
-            res.status(statusCodes.OK).send({ message: controllerMessages.Update_Success })
+            res.status(statusCodes.OK).send({ message: controllerMessages.Update_Success, metaData })
         } catch (error) {
             await this.#duplicateError(error, res)
         }
@@ -82,7 +83,7 @@ class UserController {
             const pullQuery = { userId: req.sessions.userId }
             const pullOperation = { $pull: { phoneNumber: { $in: req.body.phoneNumber } } }
             await userService.updateOne(pullQuery, pullOperation)
-            res.status(statusCodes.Created).send({ message: controllerMessages.PhoneNumber_Delete })
+            res.status(statusCodes.Created).send({ message: controllerMessages.PhoneNumber_Delete, metaData })
         } catch (error) {
             res.status(statusCodes.Inrernal_Server_Error).send({ message: error.message, metaData })
         }
@@ -104,7 +105,7 @@ class UserController {
 
             const operation = { $set: { password: newHashedPassword } }
             await userService.updateOne(query, operation)
-            res.status(statusCodes.OK).send({ message: controllerMessages.Change_Password_Successful })
+            res.status(statusCodes.OK).send({ message: controllerMessages.Change_Password_Successful, metaData })
         } catch (error) {
             res.status(statusCodes.Bad_Request).send({ message: error.message, metaData })
         }
@@ -115,7 +116,7 @@ class UserController {
             const query = { userId: req.sessions.userId }
             const operation = { $set: { avatar: req.file.originalname } }
             await userService.findOneAndUpdate(query, operation)
-            res.status(statusCodes.OK).send({ message: controllerMessages.Set_Image })
+            res.status(statusCodes.OK).send({ message: controllerMessages.Set_Image, metaData })
         } catch (error) {
             res.status(statusCodes.Unprocessable).send({ message: error.message, metaData })
         }
@@ -126,7 +127,7 @@ class UserController {
             const query = { userId: req.sessions.userId }
             const operation = { $unset: { avatar: "" } }
             await userService.updateOne(query, operation)
-            res.status(statusCodes.OK).send({ message: controllerMessages.Delete_Image })
+            res.status(statusCodes.OK).send({ message: controllerMessages.Delete_Image, metaData })
         } catch (error) {
             res.status(statusCodes.Inrernal_Server_Error).send({ message: error.message, metaData })
         }
@@ -195,7 +196,8 @@ class UserController {
         const IsServerError = this.#mongoServerError(error.code, error.keyValue)
         if (IsServerError.condition) {
             return response.status(statusCodes.Conflict).send({
-                message: IsServerError.error
+                message: IsServerError.error,
+                metaData
             })
         } else {
             response.status(statusCodes.Bad_Request).send({ message: error.message, metaData })

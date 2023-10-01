@@ -12,13 +12,16 @@ const tokenSchema = new mongoose.Schema({
         required: true
     },
     createdAt: {
+        type: Number,
+    },
+    expireAt: {
         type: Date
     }
 })
 
 const userTokens = mongoose.model("userTokens", tokenSchema)
 
-userTokens.collection.createIndex({ createdAt: 1 }, { expireAfterSeconds: environmentExp })
+userTokens.collection.createIndex({ expireAt: 1 }, { expireAfterSeconds: environmentExp })
 
 module.exports = userTokens
 
