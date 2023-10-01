@@ -20,7 +20,7 @@ const tokenSchema = new mongoose.Schema({
     }
 })
 
-tokenSchema.pre("save", async function (next) {
+tokenSchema.pre("save", function (next) {
     const userToken = this
     try {
         userToken.createdAt = getUnixTimestamp()
