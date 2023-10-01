@@ -105,6 +105,7 @@ class UserController {
 
             const operation = { $set: { password: newHashedPassword } }
             await userService.updateOne(query, operation)
+            await tokenService.deleteMany(query)
             res.status(statusCodes.OK).send({ data: controllerMessages.Change_Password_Successful, meta })
         } catch (error) {
             res.status(statusCodes.Bad_Request).send({ data: error.message, meta })
