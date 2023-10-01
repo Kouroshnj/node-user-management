@@ -22,6 +22,10 @@ class BaseService {
         return this.model.deleteOne(query)
     }
 
+    async deleteMany(query) {
+        return this.model.deleteMany(query)
+    }
+
     async findOneAndUpdate(query, operation) {
         return this.model.findOneAndUpdate(query, operation)
     }
