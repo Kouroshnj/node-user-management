@@ -1,16 +1,16 @@
 const jwt = require("jsonwebtoken")
-const { environmentExp } = require("../constant/consts")
+const { authenticate } = require("../../config/config")
 
 class AuthManagement {
 
     async generateAuthToken(user) {
         return jwt.sign({ _userId: user.userId },
-            process.env.SECRET_KEY,
-            { expiresIn: environmentExp })
+            authenticate.jwtSecretKey,
+            { expiresIn: authenticate.jwtExpiration })
     }
 
     async verifyAuthToken(token) {
-        return jwt.verify(token, process.env.SECRET_KEY)
+        return jwt.verify(token, authenticate.jwtSecretKey)
     }
 }
 

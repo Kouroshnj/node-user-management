@@ -1,6 +1,6 @@
 const mongoose = require("mongoose")
 const { v4: uuidv4 } = require('uuid');
-const hashingPassword = require("../utils/hashingPass")
+const { hashingPassword } = require("../utils/hashAndComparePass")
 
 
 const userSchema = new mongoose.Schema({
@@ -31,9 +31,9 @@ const userSchema = new mongoose.Schema({
     nationalCode: {
         type: String
     },
-    avatar: {
+    avatars: [{
         type: String
-    }
+    }]
 })
 
 userSchema.pre("save", async function (next) {

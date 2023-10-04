@@ -1,8 +1,10 @@
 const express = require("express")
-require("./src/db/mongoose")
+const { database } = require("../config/config")
+require("./db/mongoose")
 
 
-const PORT = process.env.PORT || 3000
+
+const PORT = database.applicationPort
 
 const userRouter = require("./routes/userRouter")
 const app = express()
@@ -10,6 +12,7 @@ const app = express()
 app.use(express.json())
 
 app.use(userRouter)
+
 
 app.listen(PORT, (err) => {
     if (err) {

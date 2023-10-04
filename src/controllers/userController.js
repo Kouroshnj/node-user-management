@@ -1,14 +1,15 @@
 const userModel = require("../models/users")
 const userTokens = require("../models/userTokens")
-const hashingPassword = require("../utils/hashingPass")
+const { hashingPassword, comparePass } = require("../utils/hashAndComparePass")
 const UserService = require("../services/user.service")
 const TokenService = require("../services/token.service")
 const AuthManagement = require("../utils/authManagement")
 const meta = require("../constant/meta")
-const { getUnixTimestamp, getIsoDate } = require("../utils/getDate")
 const path = require("path");
+const fs = require("fs")
 const bcrypt = require("bcryptjs")
 const { statusCodes, controllerMessages } = require("../constant/consts")
+const { imagesDirectory } = require("../../config/config")
 
 
 const userService = new UserService(userModel)
@@ -22,7 +23,7 @@ class UserController {
             const user = await userService.createDocument(req.body)
             const token = await authManagement.generateAuthToken(user)
             await tokenService.createDocument({ token, userId: user.userId })
-            return res.status(statusCodes.Created).send({ data: this.#userInfoData(user), token, meta })
+            return res.status(statusCodes.CREATED).send({ data: this.#userInfoData(user), token, meta })
         } catch (error) {
             await this.#duplicateError(error, res)
         }
@@ -37,13 +38,13 @@ class UserController {
 
             await this.#checkUserExistence(user)
 
-            await this.#comparePass(password, user.password)
+            await comparePass(password, user.password)
 
             const token = await authManagement.generateAuthToken(user)
             await tokenService.createDocument({ token, userId: user.userId })
             res.status(statusCodes.OK).send({ data: this.#userInfoData(user), token, meta })
         } catch (error) {
-            res.status(statusCodes.Unauthorized).send({ data: error.message, meta })
+            res.status(statusCodes.UNAUTHORIZED).send({ data: error.message, meta })
         }
     }
 
@@ -51,28 +52,28 @@ class UserController {
         try {
             const query = { token: req.sessions.token }
             await tokenService.deleteOne(query)
-            res.status(statusCodes.OK).send({ data: controllerMessages.User_Log_Out, meta })
+            res.status(statusCodes.OK).send({ data: controllerMessages.USER_LOG_OUT_SUCCESSFUL, meta })
         } catch (error) {
-            res.status(statusCodes.Inrernal_Server_Error).send({ data: error.message, meta })
+            res.status(statusCodes.INTERNAL_SERVER_ERROR).send({ data: error.message, meta })
         }
     }
 
     userInfo = async (req, res) => {
         try {
-            const select = "firstName lastName parent phoneNumber nationalCode userId"
+            const select = "firstName lastName parent phoneNumber nationalCode userId avatars"
             const query = { userId: req.sessions.userId }
             const user = await userService.findOne(query, select)
             await this.#checkUserExistence(user)
-            return res.status(statusCodes.OK).send({ userInfo: this.#userInfoData(user), meta })
+            return res.status(statusCodes.OK).send({ data: this.#userInfoData(user), meta })
         } catch (error) {
-            res.status(statusCodes.Not_Found).send({ data: error.message, meta })
+            res.status(statusCodes.NOT_FOUND).send({ data: error.message, meta })
         }
     }
 
     updateUser = async (req, res) => {
         try {
             await this.#updateHandler(req.body, req.sessions.userId)
-            res.status(statusCodes.OK).send({ data: controllerMessages.Update_Success, meta })
+            res.status(statusCodes.OK).send({ data: controllerMessages.UPDATE_SUCCESS, meta })
         } catch (error) {
             await this.#duplicateError(error, res)
         }
@@ -83,9 +84,9 @@ class UserController {
             const pullQuery = { userId: req.sessions.userId }
             const pullOperation = { $pull: { phoneNumber: { $in: req.body.phoneNumber } } }
             await userService.updateOne(pullQuery, pullOperation)
-            res.status(statusCodes.Created).send({ data: controllerMessages.PhoneNumber_Delete, meta })
+            res.status(statusCodes.OK).send({ data: controllerMessages.PHONENUMBER_DELETE_SUCCESSFUL, meta })
         } catch (error) {
-            res.status(statusCodes.Inrernal_Server_Error).send({ data: error.message, meta })
+            res.status(statusCodes.INTERNAL_SERVER_ERROR).send({ data: error.message, meta })
         }
     }
 
@@ -99,61 +100,69 @@ class UserController {
             await this.#checkUserExistence(user)
             const oldHashedPassword = user.password
 
-            await this.#comparePass(oldPassword, oldHashedPassword)
+            await comparePass(oldPassword, oldHashedPassword)
 
             const newHashedPassword = await hashingPassword(newPassword)
 
             const operation = { $set: { password: newHashedPassword } }
             await userService.updateOne(query, operation)
             await tokenService.deleteMany(query)
-            res.status(statusCodes.OK).send({ data: controllerMessages.Change_Password_Successful, meta })
+            res.status(statusCodes.OK).send({ data: controllerMessages.CHANGE_PASSWORD_SUCCESSFUL, meta })
         } catch (error) {
-            res.status(statusCodes.Bad_Request).send({ data: error.message, meta })
+            res.status(statusCodes.BAD_REQUEST).send({ data: error.message, meta })
         }
     }
 
     setImage = async (req, res) => {
         try {
             const query = { userId: req.sessions.userId }
-            const operation = { $set: { avatar: req.file.originalname } }
+            const operation = { $push: { avatars: req.file.originalname } }
             await userService.findOneAndUpdate(query, operation)
-            res.status(statusCodes.OK).send({ data: controllerMessages.Set_Image, meta })
+            res.status(statusCodes.OK).send({ data: controllerMessages.SET_IMAGE_SUCCESSFUL, meta })
         } catch (error) {
-            res.status(statusCodes.Unprocessable).send({ data: error.message, meta })
+            res.status(statusCodes.UNPROCESSABLE).send({ data: error.message, meta })
         }
     }
 
     deleteImage = async (req, res) => {
         try {
-            const query = { userId: req.sessions.userId }
-            const operation = { $unset: { avatar: "" } }
+            const userId = req.sessions.userId
+            const query = { userId }
+            const fileName = req.params.fileName
+            const select = "avatars"
+            const user = await userService.findOne(query, select)
+            await this.#checkUserImageExistence(user, fileName)
+            const operation = { $pull: { avatars: fileName } }
             await userService.updateOne(query, operation)
-            res.status(statusCodes.OK).send({ data: controllerMessages.Delete_Image, meta })
+            const imagePath = path.resolve(imagesDirectory.directory, userId, fileName)
+            fs.unlink(imagePath, (error) => {
+                if (error) {
+                    return res.status(statusCodes.INTERNAL_SERVER_ERROR).send({ data: controllerMessages.DELETE_IMAGE_ERROR })
+                }
+            })
+            res.status(statusCodes.OK).send({ data: controllerMessages.DELETE_IMAGE_SUCCESSFUL, meta })
         } catch (error) {
-            res.status(statusCodes.Inrernal_Server_Error).send({ data: error.message, meta })
+            res.status(statusCodes.INTERNAL_SERVER_ERROR).send({ data: error.message, meta })
         }
     }
 
     getImage = async (req, res) => {
         try {
             const query = { userId: req.sessions.userId }
+            const select = "userId avatars"
+            const user = await userService.findOne(query, select)
+            const fileName = req.params.fileName
 
-            const user = await userService.findOne(query)
+            await this.#checkUserImageExistence(user, fileName)
 
-
-            if (!user?.avatar) {
-                return res.status(statusCodes.Not_Found).send({ data: controllerMessages.Unavailable_Image, meta })
-            }
-
-            const root = path.resolve(process.cwd(), "avatars", user.avatar)
-
+            const root = path.resolve(imagesDirectory.directory, user.userId, fileName)
             res.sendFile(root, (err) => {
                 if (err) {
-                    return res.status(statusCodes.Not_Found).send({ data: controllerMessages.Unavailable_Image, meta })
+                    return res.status(statusCodes.NOT_FOUND).send({ data: controllerMessages.UNAVAILABE_IMAGE, meta })
                 }
             })
         } catch (error) {
-            res.status(statusCodes.Not_Found).send({ data: error.message, meta })
+            res.status(statusCodes.NOT_FOUND).send({ data: error.message, meta })
         }
     }
 
@@ -175,36 +184,34 @@ class UserController {
             lastName: user.lastName,
             parent: user.parent,
             phoneNumber: user.phoneNumber,
-            nationalCode: user.nationalCode
-        }
-    }
-
-    #comparePass = async (oldPassword, oldHashedPassword) => {
-        const isValid = await bcrypt.compare(oldPassword, oldHashedPassword)
-
-        if (!isValid) {
-            throw new Error(controllerMessages.Email_Pass_Wrong)
+            nationalCode: user.nationalCode,
+            avatars: user.avatars
         }
     }
 
     #checkUserExistence = async (user) => {
         if (!user?.userId) {
-            throw new Error(controllerMessages.Email_Pass_Wrong)
+            throw new Error(controllerMessages.EMAIL_PASS_WRONG)
         }
     }
 
     #duplicateError = async (error, response) => {
         const IsServerError = this.#mongoServerError(error.code, error.keyValue)
         if (IsServerError.condition) {
-            return response.status(statusCodes.Conflict).send({
+            return response.status(statusCodes.CONFLICT).send({
                 data: IsServerError.error,
                 meta
             })
         } else {
-            response.status(statusCodes.Bad_Request).send({ data: error.message, meta })
+            response.status(statusCodes.INTERNAL_SERVER_ERROR).send({ data: error.message, meta })
         }
     }
 
+    #checkUserImageExistence = async (user, fileName) => {
+        if (!user.avatars.includes(fileName) || user.avatars.length === 0) {
+            throw new Error(controllerMessages.UNAVAILABE_IMAGE)
+        }
+    }
 
     #mongoServerError = (value, errorValue) => {
         if (value === 11000) {
@@ -212,7 +219,6 @@ class UserController {
         }
         return false
     }
-
 
 }
 

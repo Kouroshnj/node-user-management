@@ -25,9 +25,9 @@ router.patch("/users/profile/changePassword", [auth, validation("changePasswordV
 
 router.route("/users/profile/image")
     .post(auth, upload.single("avatar"), userController.setImage)
-    .delete(auth, userController.deleteImage)
+
+router.route("/users/profile/image/:fileName")
     .get(auth, userController.getImage)
-
-
+    .delete(auth, userController.deleteImage)
 
 module.exports = router

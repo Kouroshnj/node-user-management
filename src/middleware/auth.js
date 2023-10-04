@@ -18,7 +18,7 @@ const auth = async function (req, res, next) {
             tokenMethods.findOne(query),
         ])
         if (!userToken?.userId) {
-            return res.status(statusCodes.Not_Found).send({ data: authMessages.Token_Not_Exist, meta })
+            return res.status(statusCodes.NOT_FOUND).send({ data: authMessages.TOKEN_NOT_EXIST, meta })
 
         }
 
@@ -28,7 +28,7 @@ const auth = async function (req, res, next) {
         }
         next()
     } catch (error) {
-        res.status(statusCodes.Not_Found).send({ data: error.message, meta })
+        res.status(statusCodes.NOT_FOUND).send({ data: error.message, meta })
     }
 }
 

@@ -1,4 +1,4 @@
-const { environmentExp } = require("../constant/consts")
+const { authenticate } = require("../../config/config")
 const mongoose = require("mongoose")
 const { getIsoDate, getUnixTimestamp } = require("../utils/getDate")
 
@@ -33,6 +33,6 @@ tokenSchema.pre("save", function (next) {
 
 const userTokens = mongoose.model("userTokens", tokenSchema)
 
-userTokens.collection.createIndex({ expireAt: 1 }, { expireAfterSeconds: environmentExp })
+userTokens.collection.createIndex({ expireAt: 1 }, { expireAfterSeconds: authenticate.jwtExpiration })
 
 module.exports = userTokens
