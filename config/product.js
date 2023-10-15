@@ -9,7 +9,7 @@ const database = {
 }
 
 const authenticate = {
-    jwtExpiration: parseInt(process.env.EXPIRATION),
+    jwtExpiration: parseInt(process.env.JWT_EXPIRATION),
     jwtSecretKey: process.env.JWT_SECRET_KEY
 }
 
@@ -17,9 +17,22 @@ const imagesDirectory = {
     directory: process.env.IMAGES_FOLDER
 }
 
+const uploadImage = {
+    sizeLimitation: parseInt(process.env.IMAGE_UPLOAD_LIMIT)
+}
+
+const loggerConfig = {
+    showLogInTerminal: false,
+    storeLogInMongo: false
+}
+
+
+
 
 module.exports = {
     database,
     authenticate,
-    imagesDirectory
+    imagesDirectory,
+    uploadImage,
+    loggerConfig
 }

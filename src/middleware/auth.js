@@ -1,12 +1,12 @@
-const { statusCodes, authMessages } = require("../constant/consts")
+const { statusCodes, controllerMessages, errorCodes, authMessages } = require("../constant/consts")
 const TokenMethods = require("../services/token.service")
-const AuthManagement = require("../utils/authManagement")
+const JwtHandler = require("../utils/jwtUtils")
 const userTokens = require("../models/userTokens")
-const meta = require("../constant/meta")
+const TokenExistenceError = require("../error/tokenExistence.error")
 
 
 const tokenMethods = new TokenMethods(userTokens)
-const authManagement = new AuthManagement()
+const authManagement = new JwtHandler()
 
 
 const auth = async function (req, res, next) {
@@ -14,12 +14,9 @@ const auth = async function (req, res, next) {
         const token = await req.header("Authorization").replace("Bearer ", "");
         const tokenPayload = await authManagement.verifyAuthToken(token)
         const query = { userId: tokenPayload._userId }
-        const [userToken] = await Promise.all([
-            tokenMethods.findOne(query),
-        ])
+        const userToken = await tokenMethods.findOne(query)
         if (!userToken?.userId) {
-            return res.status(statusCodes.NOT_FOUND).send({ data: authMessages.TOKEN_NOT_EXIST, meta })
-
+            throw new TokenExistenceError()
         }
 
         req.sessions = {
@@ -28,7 +25,7 @@ const auth = async function (req, res, next) {
         }
         next()
     } catch (error) {
-        res.status(statusCodes.NOT_FOUND).send({ data: error.message, meta })
+        next(error)
     }
 }
 

@@ -1,5 +1,5 @@
-const { controllerMessages } = require("../constant/consts")
-
+const { controllerMessages, statusCodes, errorCodes } = require("../constant/consts")
+const EmailOrPasswordWrong = require("../error/userExistence.error")
 const bcrypt = require("bcryptjs")
 
 async function hashingPassword(password) {
@@ -13,7 +13,7 @@ async function comparePass(oldPassword, oldHashedPassword) {
     const isValid = await bcrypt.compare(oldPassword, oldHashedPassword)
 
     if (!isValid) {
-        throw new Error(controllerMessages.EMAIL_PASS_WRONG)
+        throw new EmailOrPasswordWrong()
     }
 }
 

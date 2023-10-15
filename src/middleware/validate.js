@@ -1,20 +1,19 @@
 const Schemas = require("../validations/joiValidation");
-const meta = require("../constant/meta")
-const { statusCodes } = require("../constant/consts")
+const { statusCodes, errorCodes } = require("../constant/consts")
+const SchemaValidationError = require("../error/schemaValidation.error")
 
-const validate = function (schema) {
+
+
+const validation = (schema) => {
     return async function (req, res, next) {
         try {
-            const { error } = await Schemas[schema].validateAsync(req.body);
-            if (error) {
-                const errorMessage = error.details[0].message
-                return res.status(statusCodes.BAD_REQUEST).json({ data: errorMessage, meta })
-            }
+            const values = { ...req.body, ...req.params, ...req.query }
+            await Schemas[schema].validateAsync(values);
             next()
         } catch (error) {
-            res.status(statusCodes.BAD_REQUEST).json({ data: error.message, meta })
+            next(new SchemaValidationError(error.message))
         }
     }
 }
 
-module.exports = validate
+module.exports = validation

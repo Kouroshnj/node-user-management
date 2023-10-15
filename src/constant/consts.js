@@ -12,17 +12,46 @@ exports.statusCodes = {
 }
 
 exports.controllerMessages = {
+    SIGNUP_SUCCESSFUL: "User successfuly signed up",
+    LOGIN_SUCCESSFUL: "User successfuly logged in",
     USER_LOG_OUT_SUCCESSFUL: "User successfuly logged out",
     UPDATE_SUCCESS: "User successfuly updated",
     UNAVAILABE_IMAGE: "User image unavailable",
+    GET_PROFILE_SUCCESSFUL: "User got the profile successfuly",
     CHANGE_PASSWORD_SUCCESSFUL: "Password successfuly changed",
     SET_IMAGE_SUCCESSFUL: "Image sets successfuly",
     EMAIL_PASS_WRONG: "Email or password is wrong",
     DELETE_IMAGE_SUCCESSFUL: "Image successfuly deleted",
     DELETE_IMAGE_ERROR: "image deleting unsuccessful",
-    PHONENUMBER_DELETE_SUCCESSFUL: "phoneNumber successfully deleted"
+    PHONENUMBER_DELETE_SUCCESSFUL: "phoneNumber successfully deleted",
+    SEND_FILE_ERROR: "sending file error!",
+    FORMAT_ERROR: "format must be jpg or png",
+    URL_PARAMS: "Url param didn't provided!",
+    MONGO_METHOD_ERROR: "method process failed"
+}
+
+exports.errorCodes = {
+    OK: "OK",
+    UNAUTHORIZED: "UNAUTHORIZED",
+    NOT_FOUND: "NOT_FOUND",
+    NOT_ACCESPTABLE: "NOT_ACCESPTABLE",
+    UNPROCESSABLE: "UNPROCESSABLE",
+    INTERNAL_SERVER_ERROR: "INTERNAL_SERVER_ERROR",
+    BAD_REQUEST: "BAD_REQUEST",
+    CONFLICT: "COFLICT",
+    NO_CONTENT: "NO_CONTENT",
+    CREDENTIALS: "INVALID_CREDENTIALS"
 }
 
 exports.authMessages = {
     TOKEN_NOT_EXIST: "Token does not exist"
+}
+
+exports.logLevels = {
+    error: "Error",
+    warn: "Warning",
+    info: "Information",
+    http: "HTTP",
+    debug: "Debug",
+    successful: "Successful"
 }

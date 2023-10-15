@@ -1,5 +1,5 @@
-const { database } = require("../../config/config")
+const { database } = require("../../config/product")
 const mongoose = require("mongoose");
 
 
-mongoose.connect(`mongodb://${database.mongoDBHostName + ":" + database.mongoDBPort + database.mongoDBDatabaseName}`)
+mongoose.connect(`mongodb://${database.mongoDBHostName + ":" + database.mongoDBPort + "/" + database.mongoDBDatabaseName}`)

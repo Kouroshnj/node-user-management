@@ -2,7 +2,7 @@ const express = require("express");
 const auth = require("../middleware/auth")
 const UserController = require("../controllers/userController")
 const validation = require("../middleware/validate")
-const upload = require("../middleware/upload")
+const upload = require("../middleware/upload");
 
 const router = express.Router()
 
@@ -26,8 +26,10 @@ router.patch("/users/profile/changePassword", [auth, validation("changePasswordV
 router.route("/users/profile/image")
     .post(auth, upload.single("avatar"), userController.setImage)
 
+
 router.route("/users/profile/image/:fileName")
-    .get(auth, userController.getImage)
-    .delete(auth, userController.deleteImage)
+    .get(auth, validation("imageParamValidation"), userController.getImage)
+    .delete(auth, validation("imageParamValidation"), userController.deleteImage)
+
 
 module.exports = router

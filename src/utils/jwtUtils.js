@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken")
-const { authenticate } = require("../../config/config")
+const { authenticate } = require("../../config/product")
 
-class AuthManagement {
+class JwtHandler {
 
     async generateAuthToken(user) {
         return jwt.sign({ _userId: user.userId },
@@ -14,4 +14,4 @@ class AuthManagement {
     }
 }
 
-module.exports = AuthManagement
+module.exports = JwtHandler

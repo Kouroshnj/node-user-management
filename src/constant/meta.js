@@ -1,8 +1,14 @@
 const packageJson = require("../../package.json")
+const { getUnixTimestamp } = require("../utils/getDate")
 
-const meta = {
-    service_name: packageJson.name,
-    service_version: packageJson.version
+const generateMetaInformation = (errorCode) => {
+    const meta = {
+        service_name: packageJson.name,
+        service_version: packageJson.version,
+        timestamp: getUnixTimestamp(),
+        errorCode
+    }
+    return meta
 }
 
-module.exports = meta
+module.exports = generateMetaInformation

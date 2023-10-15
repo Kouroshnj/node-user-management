@@ -35,10 +35,15 @@ const deletePhoneNumberValidation = joi.object({
     phoneNumber: joi.array().items(joi.string().length(11).trim())
 })
 
+const imageParamValidation = joi.object({
+    fileName: joi.string().required()
+})
+
 module.exports = {
     userValidation,
     LoginValidation,
     changePasswordValidation,
     updateUserValidation,
-    deletePhoneNumberValidation
+    deletePhoneNumberValidation,
+    imageParamValidation
 }

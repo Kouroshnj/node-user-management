@@ -1,6 +1,6 @@
 const multer = require("multer")
 const path = require("path")
-const { imagesDirectory } = require("../../config/config")
+const { imagesDirectory, uploadImage } = require("../../config/product")
 const fs = require("fs")
 
 
@@ -20,24 +20,24 @@ const storage = multer.diskStorage({
     destination: async function (req, file, cb) {
         const userId = req.sessions.userId
         const userImageDirectory = path.resolve(imagesDirectory.directory, userId)
-        const isFileExist = await checkUserFileExist(userImageDirectory)
+        const isFileExist = checkUserFileExist(userImageDirectory)
         if (!isFileExist) {
             fs.mkdirSync(path.resolve(userImageDirectory))
         }
         cb(null, userImageDirectory);
     },
     filename: function (req, file, cb) {
-        // Use the original name of the file
         cb(null, file.originalname);
     },
 });
 
 const upload = multer({
     storage: storage,
-    limits: 2000000,
+    limits: { fileSize: uploadImage.sizeLimitation },
     fileFilter(req, file, cb) {
         if (!file.originalname.match(/\.(jpg|png)/)) {
-            return cb(new Error("format must be jpg or png"))
+            file.originalname = undefined
+            return cb("", false)
         }
         return cb(undefined, file.originalname)
     }
