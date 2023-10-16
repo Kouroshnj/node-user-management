@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
         type: String
     },
     password: {
-        type: String
+        type: String,
     },
     phoneNumber: [{
         type: String
@@ -54,11 +54,11 @@ const userModel = mongoose.model("userModel", userSchema);
 
 userModel.collection.createIndex({ age: 1 })
 
-userModel.collection.createIndex({ phoneNumber: 1 }, { unique: true })
+userModel.collection.createIndex({ phoneNumber: 1 }, { partialFilterExpression: { "phoneNumber.0": { $exists: true } }, unique: true })
 
-userModel.collection.createIndex({ email: 1 }, { unique: true })
+userModel.collection.createIndex({ email: 1 }, { partialFilterExpression: { email: { $exists: true } }, unique: true })
 
-userModel.collection.createIndex({ nationalCode: 1 }, { unique: true })
+userModel.collection.createIndex({ nationalCode: 1 }, { partialFilterExpression: { nationalCode: { $exists: true } }, unique: true })
 
 
 module.exports = userModel
