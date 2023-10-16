@@ -1,4 +1,4 @@
-const { database } = require("../../config/product")
+const { database } = require(`../../config/${process.env.NODE_ENV}`)
 const mongoose = require("mongoose");
 
 

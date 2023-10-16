@@ -1,4 +1,4 @@
-const { authenticate } = require("../../config/product")
+const { authenticate } = require(`../../config/${process.env.NODE_ENV}`)
 const mongoose = require("mongoose")
 const { getIsoDate, getUnixTimestamp } = require("../utils/getDate")
 

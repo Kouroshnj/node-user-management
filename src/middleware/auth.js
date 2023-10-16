@@ -1,4 +1,3 @@
-const { statusCodes, controllerMessages, errorCodes, authMessages } = require("../constant/consts")
 const TokenMethods = require("../services/token.service")
 const JwtHandler = require("../utils/jwtUtils")
 const userTokens = require("../models/userTokens")

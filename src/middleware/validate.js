@@ -1,5 +1,4 @@
 const Schemas = require("../validations/joiValidation");
-const { statusCodes, errorCodes } = require("../constant/consts")
 const SchemaValidationError = require("../error/schemaValidation.error")
 
 

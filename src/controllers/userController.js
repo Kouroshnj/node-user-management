@@ -10,13 +10,11 @@ const CollectionMethodsError = require("../error/collectionMethods.error")
 const ImageFormatError = require("../error/imageFormat.error")
 const ImageExistence = require("../error/imageExistence.error")
 const DeleteImageError = require("../error/deleteImage.error")
-const requestInputValues = require("../utils/requestDetails")
 const meta = require("../constant/meta")
 const path = require("path");
 const fs = require("fs")
 const { statusCodes, controllerMessages } = require("../constant/consts")
-const { imagesDirectory } = require("../../config/product")
-const { getUnixTimestamp } = require("../utils/getDate")
+const { imagesDirectory } = require(`../../config/${process.env.NODE_ENV}`)
 const { sendOKInputs } = require("../utils/sendOKUtils")
 
 

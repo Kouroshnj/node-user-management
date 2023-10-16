@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken")
-const { authenticate } = require("../../config/product")
+const { authenticate } = require(`../../config/${process.env.NODE_ENV}`)
 
 class JwtHandler {
 
