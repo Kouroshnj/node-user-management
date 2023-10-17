@@ -12,9 +12,11 @@ const userValidation = joi.object({
 })
 
 const LoginValidation = joi.object({
-    email: joi.string().required().email().trim(),
+    email: joi.string().email().trim(),
+    phoneNumber: joi.string().length(11).trim(),
+    nationalCode: joi.string().length(10).trim(),
     password: joi.string().required().min(7).trim(),
-})
+}).or("email", "phoneNumber", "nationalCode").required()
 
 const changePasswordValidation = joi.object({
     oldPassword: joi.string().required().min(7).trim(),

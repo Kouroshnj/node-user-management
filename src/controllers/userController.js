@@ -5,7 +5,7 @@ const UserService = require("../services/user.service")
 const TokenService = require("../services/token.service")
 const JwtHandler = require("../utils/jwtUtils")
 const DuplicateError = require("../error/duplicate.error")
-const EmailOrPasswordWrong = require("../error/userExistence.error")
+const InvalidCredentials = require("../error/userExistence.error")
 const CollectionMethodsError = require("../error/collectionMethods.error")
 const ImageFormatError = require("../error/imageFormat.error")
 const ImageExistence = require("../error/imageExistence.error")
@@ -45,8 +45,8 @@ class UserController {
 
     logIn = async (req, res, next) => {
         try {
-            const { email, password } = req.body;
-            const query = { email }
+            const { password, ...body } = req.body
+            const query = { ...body }
 
             const user = await userService.findOne(query)
 
@@ -75,7 +75,6 @@ class UserController {
             const query = { token: req.sessions.token }
             const deleteOneResult = await tokenService.deleteOne(query)
             await this.#checkModifiedCount(deleteOneResult.deletedCount)
-            const returnValue = { message: controllerMessages.USER_LOG_OUT_SUCCESSFUL }
             res.sendOK({
                 returnValue: {
                     message: controllerMessages.USER_LOG_OUT_SUCCESSFUL,
@@ -245,14 +244,13 @@ class UserController {
             lastName: user.lastName,
             parent: user.parent,
             phoneNumber: user.phoneNumber,
-            nationalCode: user.nationalCode,
-            avatars: user.avatars
+            nationalCode: user.nationalCode
         }
     }
 
     #checkUserExistence = async (user) => {
         if (!user?.userId) {
-            throw new EmailOrPasswordWrong()
+            throw new InvalidCredentials()
         }
     }
 

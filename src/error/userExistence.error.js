@@ -2,13 +2,13 @@ const customErrorHandling = require("./customError")
 const { controllerMessages, statusCodes, errorCodes } = require("../constant/consts")
 
 
-class EmailOrPasswordWrong extends customErrorHandling {
+class InvalidCredentials extends customErrorHandling {
     constructor() {
         super(
-            controllerMessages.EMAIL_PASS_WRONG,
+            controllerMessages.INVALID_CREDENTIALS,
             statusCodes.UNAUTHORIZED,
             errorCodes.CREDENTIALS,
         )
     }
 }
-module.exports = EmailOrPasswordWrong
+module.exports = InvalidCredentials

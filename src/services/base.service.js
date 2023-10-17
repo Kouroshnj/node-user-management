@@ -13,6 +13,10 @@ class BaseService {
         return this.model.updateOne(query, operation)
     }
 
+    async findOneAndUpdate(query, operation) {
+        return this.model.findOneAndUpdate(query, operation)
+    }
+
     async findOne(query, select) {
         return this.model.findOne(query).select(select).lean()
     }
@@ -25,16 +29,8 @@ class BaseService {
         return this.model.deleteMany(query)
     }
 
-    async findOneAndUpdate(query, operation) {
-        return this.model.findOneAndUpdate(query, operation)
-    }
-
     async findOneAndDelete(query, operation) {
         return this.model.findOneAndDelete(query, operation)
-    }
-
-    async findAndModify(query, operation) {
-        return this.model.findAndModify(query, operation)
     }
 
     async findOneAndReplace(query, operation) {

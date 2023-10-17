@@ -20,7 +20,7 @@ exports.controllerMessages = {
     GET_PROFILE_SUCCESSFUL: "User got the profile successfuly",
     CHANGE_PASSWORD_SUCCESSFUL: "Password successfuly changed",
     SET_IMAGE_SUCCESSFUL: "Image sets successfuly",
-    EMAIL_PASS_WRONG: "Email or password is wrong",
+    INVALID_CREDENTIALS: "Invalid credentials",
     DELETE_IMAGE_SUCCESSFUL: "Image successfuly deleted",
     DELETE_IMAGE_ERROR: "image deleting unsuccessful",
     PHONENUMBER_DELETE_SUCCESSFUL: "phoneNumber successfully deleted",

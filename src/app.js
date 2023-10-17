@@ -7,11 +7,11 @@ const errorHandlingMiddleware = require("./middleware/errorHandlingMiddleware")
 const generateMetaInformation = require("./constant/meta")
 require("./db/mongoose")
 const { sendOKLogDisplay } = require("./utils/sendOKUtils")
+const userAuthRoutes = require("./routes/userAuthRoutes")
+const userProfileRoutes = require("./routes/userProfileRoutes")
 
 
 const PORT = database.applicationPort
-
-const userRouter = require("./routes/userRouter")
 
 const app = express()
 
@@ -23,7 +23,8 @@ app.response.sendOK = async function (options) {
     return this.status(statusCodes.OK).send({ data: returnValue, meta: generateMetaInformation(errorCodes.OK) })
 }
 
-app.use(userRouter)
+app.use("/users/api/v1", userAuthRoutes)
+app.use("/users/api/v1/profile", userProfileRoutes)
 
 app.use(errorHandlingMiddleware)
 
