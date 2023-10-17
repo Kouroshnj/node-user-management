@@ -52,8 +52,6 @@ userSchema.pre("save", async function (next) {
 
 const userModel = mongoose.model("userModel", userSchema);
 
-userModel.collection.createIndex({ age: 1 })
-
 userModel.collection.createIndex({ phoneNumber: 1 }, { partialFilterExpression: { "phoneNumber.0": { $exists: true } }, unique: true })
 
 userModel.collection.createIndex({ email: 1 }, { partialFilterExpression: { email: { $exists: true } }, unique: true })
