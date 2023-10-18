@@ -33,9 +33,14 @@ const updateUserValidation = joi.object({
     nationalCode: joi.string().length(10).trim().optional(),
 })
 
+const deletePhoneNumberValidation = joi.object({
+    phoneNumber: joi.array().items(joi.string().length(11).trim())
+})
+
 module.exports = {
     userValidation,
     LoginValidation,
     changePasswordValidation,
-    updateUserValidation
+    updateUserValidation,
+    deletePhoneNumberValidation
 }

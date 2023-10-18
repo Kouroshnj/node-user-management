@@ -15,7 +15,7 @@ const path = require("path");
 const fs = require("fs")
 const { statusCodes, controllerMessages } = require("../constant/consts")
 const { imagesDirectory } = require(`../../config/${process.env.NODE_ENV}`)
-const { sendOKInputs } = require("../utils/sendOKUtils")
+const sendOKInputs = require("../utils/sendOKUtils")
 
 
 const userService = new UserService(userModel)
@@ -104,6 +104,7 @@ class UserController {
                 ...sendOKInputs(req)
             })
         } catch (error) {
+            error.userId = req.sessions.userId
             next(error)
         }
     }
@@ -257,9 +258,9 @@ class UserController {
     #duplicateError = async (error) => {
         const IsServerError = await this.#mongoServerError(error.code, error.keyValue)
         if (IsServerError.condition) {
-            return new DuplicateError(IsServerError.error, error.userId)
+            return new DuplicateError(IsServerError.error)
         } else {
-            return new DuplicateError(error.message, error.userId)
+            return new DuplicateError(error.message)
         }
     }
 

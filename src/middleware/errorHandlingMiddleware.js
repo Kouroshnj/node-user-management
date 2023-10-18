@@ -5,8 +5,9 @@ const LoggerHandler = require("../utils/loggerManagement")
 const requestDetails = require("../utils/requestDetails")
 
 const loggerHandler = new LoggerHandler()
+const timestamp = getUnixTimestamp()
 
-const errorHandling = async (error, req, res, next) => {
+const errorHandlingMiddleware = async (error, req, res, next) => {
     const statusCode = error.statusCode || 500
     const errorCode = error.errorCode || "INTERNAL_SEVER_ERROR"
     const userID = error.userId || undefined
@@ -15,7 +16,7 @@ const errorHandling = async (error, req, res, next) => {
 
     return res.status(statusCode).send({
         data: error.message,
-        meta: generateMetaInformation(errorCode)
+        meta: generateMetaInformation(errorCode, timestamp)
     })
 }
 
@@ -29,8 +30,12 @@ const setErrorLogInputs = (userID, error, request) => {
         path: request.path,
         loggerType: "Error",
         method: request.method,
-        timestamp: getUnixTimestamp()
+        timestamp
     }
 }
 
-module.exports = errorHandling
+
+module.exports = {
+    errorHandlingMiddleware,
+    setErrorLogInputs
+}

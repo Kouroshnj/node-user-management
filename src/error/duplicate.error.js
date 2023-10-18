@@ -3,9 +3,10 @@ const { statusCodes, errorCodes } = require("../constant/consts")
 
 
 class DuplicateError extends customErrorHandling {
-    constructor(message, userId) {
-        super(message, statusCodes.CONFLICT, errorCodes.CONFLICT)
-        this.userId = userId
+    constructor(message) {
+        super(
+            message, statusCodes.CONFLICT, errorCodes.CONFLICT
+        )
     }
 }
 

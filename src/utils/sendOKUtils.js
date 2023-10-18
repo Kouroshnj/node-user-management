@@ -1,9 +1,6 @@
 const requestDetails = require("./requestDetails")
-const LoggerHandler = require("../utils/loggerManagement")
 const { getUnixTimestamp } = require("./getDate")
 const { logLevels } = require("../constant/consts")
-
-const loggerHandler = new LoggerHandler()
 
 
 const sendOKInputs = (request) => {
@@ -18,15 +15,5 @@ const sendOKInputs = (request) => {
     }
 }
 
-const sendOKLogDisplay = async (options) => {
-    const { returnValue } = options
-    delete options.returnValue
-    await loggerHandler.storeAndDisplayLog(options)
-    return returnValue
-}
 
-
-module.exports = {
-    sendOKInputs,
-    sendOKLogDisplay
-}
+module.exports = sendOKInputs

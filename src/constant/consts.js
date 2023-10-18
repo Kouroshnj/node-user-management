@@ -8,6 +8,7 @@ exports.statusCodes = {
     NOT_ACCESPTABLE: 406,
     CONFLICT: 409,
     UNPROCESSABLE: 422,
+    TOO_MANY_REQUESTS: 429,
     INTERNAL_SERVER_ERROR: 500
 }
 
@@ -27,7 +28,8 @@ exports.controllerMessages = {
     SEND_FILE_ERROR: "sending file error!",
     FORMAT_ERROR: "format must be jpg or png",
     URL_PARAMS: "Url param didn't provided!",
-    MONGO_METHOD_ERROR: "method process failed"
+    MONGO_METHOD_ERROR: "method process failed",
+    TOO_MANY_REQUESTS: "Too many attemps, please try again later"
 }
 
 exports.errorCodes = {
@@ -40,7 +42,8 @@ exports.errorCodes = {
     BAD_REQUEST: "BAD_REQUEST",
     CONFLICT: "COFLICT",
     NO_CONTENT: "NO_CONTENT",
-    CREDENTIALS: "INVALID_CREDENTIALS"
+    CREDENTIALS: "INVALID_CREDENTIALS",
+    TOO_MANY_REQUESTS: "TOO MANY REQUESTS"
 }
 
 exports.authMessages = {
