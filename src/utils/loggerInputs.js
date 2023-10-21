@@ -4,7 +4,7 @@ const { LOG_LEVELS, STATUSCODES, ERROR_CODES } = require("../constant/consts")
 
 const sendOKInputs = (request) => {
     return {
-        level: logLevels.successful,
+        level: LOG_LEVELS.successful,
         userIP: request.ip,
         inputValues: requestDetails(request),
         path: request.path,
