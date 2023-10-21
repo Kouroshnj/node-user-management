@@ -1,6 +1,6 @@
 const LoggerHandler = require("../utils/loggerManagement")
 const generateMetaInformation = require("../constant/meta")
-const { statusCodes, errorCodes } = require("../constant/consts")
+const { STATUSCODES, ERROR_CODES } = require("../constant/consts")
 
 const loggerHandler = new LoggerHandler()
 
@@ -11,7 +11,7 @@ const sendOKMiddleware = (req, res, next) => {
             const { timestamp, returnValue } = inputLogs
             delete inputLogs.returnValue
             loggerHandler.storeAndDisplayLog(inputLogs)
-            res.status(statusCodes.OK).send({ data: returnValue, meta: generateMetaInformation(errorCodes.OK, timestamp) })
+            res.status(STATUSCODES.OK).send({ data: returnValue, meta: generateMetaInformation(ERROR_CODES.OK, timestamp) })
         }
         next()
     } catch (error) {

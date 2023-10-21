@@ -1,13 +1,13 @@
 const customErrorHandling = require("./customError");
-const { authMessages, statusCodes, errorCodes } = require("../constant/consts")
+const { AUTH_MESSAGES, STATUSCODES, ERROR_CODES } = require("../constant/consts")
 
 
 class TokenExistenceError extends customErrorHandling {
     constructor() {
         super(
-            authMessages.TOKEN_NOT_EXIST,
-            statusCodes.UNAUTHORIZED,
-            errorCodes.UNAUTHORIZED
+            AUTH_MESSAGES.TOKEN_NOT_EXIST,
+            STATUSCODES.UNAUTHORIZED,
+            ERROR_CODES.UNAUTHORIZED
         )
     }
 }

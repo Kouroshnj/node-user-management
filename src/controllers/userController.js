@@ -13,7 +13,7 @@ const JwtHandler = require("../utils/jwtUtils")
 const meta = require("../constant/meta")
 const path = require("path");
 const fs = require("fs")
-const { statusCodes, controllerMessages } = require("../constant/consts")
+const { STATUSCODES, CONTROLLER_MESSAGES } = require("../constant/consts")
 const { imagesDirectory } = require(`../../config/${process.env.NODE_ENV}`)
 const { sendOKInputs } = require("../utils/loggerInputs")
 
@@ -40,7 +40,7 @@ class UserController {
                     userInfo: this.#userInfoData(user),
                     token
                 },
-                message: controllerMessages.SIGNUP_SUCCESSFUL,
+                message: CONTROLLER_MESSAGES.SIGNUP_SUCCESSFUL,
                 userID: user.userId,
                 ...sendOKInputs(req)
             })
@@ -68,7 +68,7 @@ class UserController {
                     userInfo: this.#userInfoData(user),
                     token
                 },
-                message: controllerMessages.LOGIN_SUCCESSFUL,
+                message: CONTROLLER_MESSAGES.LOGIN_SUCCESSFUL,
                 userID: user.userId,
                 ...sendOKInputs(req)
             })
@@ -84,9 +84,9 @@ class UserController {
             await this.#checkModifiedCount(deleteOneResult.deletedCount)
             res.sendOK({
                 returnValue: {
-                    message: controllerMessages.USER_LOG_OUT_SUCCESSFUL,
+                    message: CONTROLLER_MESSAGES.USER_LOG_OUT_SUCCESSFUL,
                 },
-                message: controllerMessages.USER_LOG_OUT_SUCCESSFUL,
+                message: CONTROLLER_MESSAGES.USER_LOG_OUT_SUCCESSFUL,
                 userID: req.sessions.userId,
                 ...sendOKInputs(req)
             })
@@ -106,7 +106,7 @@ class UserController {
                 returnValue: {
                     userInfo: this.#userInfoData(user)
                 },
-                message: controllerMessages.GET_PROFILE_SUCCESSFUL,
+                message: CONTROLLER_MESSAGES.GET_PROFILE_SUCCESSFUL,
                 userID: user.userId,
                 ...sendOKInputs(req)
             })
@@ -126,9 +126,9 @@ class UserController {
             await this.userService.updateOne(setQuery, setOperation)
             res.sendOK({
                 returnValue: {
-                    message: controllerMessages.UPDATE_SUCCESS,
+                    message: CONTROLLER_MESSAGES.UPDATE_SUCCESS,
                 },
-                message: controllerMessages.UPDATE_SUCCESS,
+                message: CONTROLLER_MESSAGES.UPDATE_SUCCESS,
                 userID: userId,
                 ...sendOKInputs(req)
 
@@ -147,9 +147,9 @@ class UserController {
             await this.userService.updateOne(pullQuery, pullOperation)
             res.sendOK({
                 returnValue: {
-                    message: controllerMessages.PHONENUMBER_DELETE_SUCCESSFUL
+                    message: CONTROLLER_MESSAGES.PHONENUMBER_DELETE_SUCCESSFUL
                 },
-                message: controllerMessages.PHONENUMBER_DELETE_SUCCESSFUL,
+                message: CONTROLLER_MESSAGES.PHONENUMBER_DELETE_SUCCESSFUL,
                 userID: req.sessions.userId,
                 ...sendOKInputs(req)
             })
@@ -178,9 +178,9 @@ class UserController {
             await this.tokenService.deleteMany(query)
             res.sendOK({
                 returnValue: {
-                    message: controllerMessages.CHANGE_PASSWORD_SUCCESSFUL
+                    message: CONTROLLER_MESSAGES.CHANGE_PASSWORD_SUCCESSFUL
                 },
-                message: controllerMessages.CHANGE_PASSWORD_SUCCESSFUL,
+                message: CONTROLLER_MESSAGES.CHANGE_PASSWORD_SUCCESSFUL,
                 userID: user.userId,
                 ...sendOKInputs(req)
             })
@@ -198,9 +198,9 @@ class UserController {
             await this.userService.findOneAndUpdate(query, operation)
             res.sendOK({
                 returnValue: {
-                    message: controllerMessages.SET_IMAGE_SUCCESSFUL
+                    message: CONTROLLER_MESSAGES.SET_IMAGE_SUCCESSFUL
                 },
-                message: controllerMessages.SET_IMAGE_SUCCESSFUL,
+                message: CONTROLLER_MESSAGES.SET_IMAGE_SUCCESSFUL,
                 userID: req.sessions.userId,
                 ...sendOKInputs(req)
             })
@@ -295,7 +295,7 @@ class UserController {
             if (error) {
                 return next(new DeleteImageError())
             }
-            response.status(statusCodes.OK).send({ data: controllerMessages.DELETE_IMAGE_SUCCESSFUL, meta })
+            response.status(STATUSCODES.OK).send({ data: CONTROLLER_MESSAGES.DELETE_IMAGE_SUCCESSFUL, meta })
         })
 
     }

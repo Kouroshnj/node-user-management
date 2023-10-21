@@ -1,13 +1,13 @@
 const customErrorHandling = require("./customError");
-const { controllerMessages, statusCodes, errorCodes } = require("../constant/consts")
+const { CONTROLLER_MESSAGES, STATUSCODES, ERROR_CODES } = require("../constant/consts")
 
 
 class ImageExistence extends customErrorHandling {
     constructor() {
         super(
-            controllerMessages.UNAVAILABE_IMAGE,
-            statusCodes.NOT_FOUND,
-            errorCodes.NOT_FOUND,
+            CONTROLLER_MESSAGES.UNAVAILABE_IMAGE,
+            STATUSCODES.NOT_FOUND,
+            ERROR_CODES.NOT_FOUND,
         )
     }
 }

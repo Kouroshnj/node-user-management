@@ -1,4 +1,4 @@
-exports.statusCodes = {
+exports.STATUSCODES = {
     OK: 200,
     CREATED: 201,
     NO_CONTENT: 204,
@@ -12,7 +12,7 @@ exports.statusCodes = {
     INTERNAL_SERVER_ERROR: 500
 }
 
-exports.controllerMessages = {
+exports.CONTROLLER_MESSAGES = {
     SIGNUP_SUCCESSFUL: "User successfuly signed up",
     LOGIN_SUCCESSFUL: "User successfuly logged in",
     USER_LOG_OUT_SUCCESSFUL: "User successfuly logged out",
@@ -31,7 +31,7 @@ exports.controllerMessages = {
     TOO_MANY_REQUESTS: "Too many attempts, please try again later"
 }
 
-exports.errorCodes = {
+exports.ERROR_CODES = {
     OK: "OK",
     UNAUTHORIZED: "UNAUTHORIZED",
     NOT_FOUND: "NOT_FOUND",
@@ -45,11 +45,11 @@ exports.errorCodes = {
     TOO_MANY_REQUESTS: "TOO MANY REQUESTS"
 }
 
-exports.authMessages = {
+exports.AUTH_MESSAGES = {
     TOKEN_NOT_EXIST: "Token does not exist"
 }
 
-exports.logLevels = {
+exports.LOG_LEVELS = {
     error: "Error",
     warn: "Warning",
     info: "Information",

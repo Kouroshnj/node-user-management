@@ -1,13 +1,13 @@
 const customErrorHandling = require("./customError");
-const { controllerMessages, statusCodes, errorCodes } = require("../constant/consts")
+const { STATUSCODES, ERROR_CODES } = require("../constant/consts")
 
 
 class ImageUploadSizeError extends customErrorHandling {
     constructor(message) {
         super(
             message,
-            statusCodes.NOT_FOUND,
-            errorCodes.NOT_FOUND
+            STATUSCODES.NOT_FOUND,
+            ERROR_CODES.NOT_FOUND
         )
     }
 }

@@ -1,6 +1,6 @@
 const requestDetails = require("./requestDetails")
 const { getUnixTimestamp } = require("./getDate")
-const { logLevels, statusCodes, errorCodes } = require("../constant/consts")
+const { LOG_LEVELS, STATUSCODES, ERROR_CODES } = require("../constant/consts")
 
 const sendOKInputs = (request) => {
     return {
@@ -10,8 +10,8 @@ const sendOKInputs = (request) => {
         path: request.path,
         loggerType: "Success",
         codes: {
-            statusCode: statusCodes.OK,
-            errorCode: errorCodes.OK
+            statusCode: STATUSCODES.OK,
+            errorCode: ERROR_CODES.OK
         },
         method: request.method,
         timestamp: getUnixTimestamp()
@@ -20,7 +20,7 @@ const sendOKInputs = (request) => {
 
 const setErrorLogInputs = (userID, error, request) => {
     return {
-        level: logLevels.error,
+        level: LOG_LEVELS.error,
         inputValues: requestDetails(request),
         message: error.message,
         userID,
