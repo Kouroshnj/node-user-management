@@ -19,13 +19,13 @@ const userSchema = new mongoose.Schema({
     password: String,
 
     phoneNumber: [{
-        String
+        type: String
     }],
 
     nationalCode: String,
 
     avatars: [{
-        String
+        type: String
     }]
 })
 

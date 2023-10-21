@@ -33,10 +33,6 @@ class BaseService {
         return this.model.findOneAndDelete(query, operation)
     }
 
-    async findOneAndReplace(query, operation) {
-        return this.model.findOneAndReplace(query, operation)
-    }
-
     async aggregate(pipeline) {
         return this.model.aggregate(pipeline)
     }
