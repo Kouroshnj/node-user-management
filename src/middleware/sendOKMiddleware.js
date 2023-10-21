@@ -7,10 +7,10 @@ const loggerHandler = new LoggerHandler()
 
 const sendOKMiddleware = (req, res, next) => {
     try {
-        res.sendOK = function (options) {
-            const { timestamp, returnValue } = options
-            delete options.returnValue
-            loggerHandler.storeAndDisplayLog(options)
+        res.sendOK = function (inputLogs) {
+            const { timestamp, returnValue } = inputLogs
+            delete inputLogs.returnValue
+            loggerHandler.storeAndDisplayLog(inputLogs)
             res.status(statusCodes.OK).send({ data: returnValue, meta: generateMetaInformation(errorCodes.OK, timestamp) })
         }
         next()

@@ -4,35 +4,28 @@ const { hashingPassword } = require("../utils/hashAndComparePass")
 
 
 const userSchema = new mongoose.Schema({
-    userId: {
-        type: String,
-    },
-    firstName: {
-        type: String
-    },
-    lastName: {
-        type: String
-    },
-    age: {
-        type: Number,
-    },
-    parent: {
-        type: String
-    },
-    email: {
-        type: String
-    },
-    password: {
-        type: String,
-    },
+    userId: String,
+
+    firstName: String,
+
+    lastName: String,
+
+    age: String,
+
+    parent: String,
+
+    email: String,
+
+    password: String,
+
     phoneNumber: [{
-        type: String
+        String
     }],
-    nationalCode: {
-        type: String
-    },
+
+    nationalCode: String,
+
     avatars: [{
-        type: String
+        String
     }]
 })
 

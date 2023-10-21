@@ -34,7 +34,7 @@ const updateUserValidation = joi.object({
 })
 
 const deletePhoneNumberValidation = joi.object({
-    phoneNumber: joi.array().items(joi.string().length(11).trim())
+    phoneNumber: joi.array().required().items(joi.string().length(11).trim())
 })
 
 module.exports = {

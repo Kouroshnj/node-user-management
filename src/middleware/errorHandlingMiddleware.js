@@ -1,41 +1,23 @@
-const { logLevels } = require("../constant/consts")
+
 const generateMetaInformation = require("../constant/meta")
-const { getUnixTimestamp } = require("../utils/getDate")
+const { setErrorLogInputs } = require("../utils/loggerInputs")
 const LoggerHandler = require("../utils/loggerManagement")
-const requestDetails = require("../utils/requestDetails")
 
 const loggerHandler = new LoggerHandler()
-const timestamp = getUnixTimestamp()
 
 const errorHandlingMiddleware = async (error, req, res, next) => {
     const statusCode = error.statusCode || 500
     const errorCode = error.errorCode || "INTERNAL_SEVER_ERROR"
     const userID = error.userId || undefined
+    const errorLogInputs = setErrorLogInputs(userID, error, req)
 
-    loggerHandler.storeAndDisplayLog(setErrorLogInputs(userID, error, req))
+    loggerHandler.storeAndDisplayLog(errorLogInputs)
 
     return res.status(statusCode).send({
         data: error.message,
-        meta: generateMetaInformation(errorCode, timestamp)
+        meta: generateMetaInformation(errorCode, errorLogInputs.timestamp)
     })
 }
 
-const setErrorLogInputs = (userID, error, request) => {
-    return {
-        level: logLevels.error,
-        inputValues: requestDetails(request),
-        message: error.message,
-        userID,
-        userIP: request.ip,
-        path: request.path,
-        loggerType: "Error",
-        method: request.method,
-        timestamp
-    }
-}
 
-
-module.exports = {
-    errorHandlingMiddleware,
-    setErrorLogInputs
-}
+module.exports = errorHandlingMiddleware

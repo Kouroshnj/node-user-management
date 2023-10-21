@@ -1,41 +1,33 @@
 const mongoose = require("mongoose")
 
 const loggerSchema = new mongoose.Schema({
-    level: {
-        type: String
-    },
+    level: String,
+
     inputValues: {
-        body: {
-            type: Object
-        },
-        params: {
-            type: Object
-        },
-        headers: {
-            type: Object
-        }
+        body: Object,
+
+        params: Object,
+
+        headers: Object
     },
-    message: {
-        type: String
+
+    message: String,
+
+    userID: String,
+
+    userIP: String,
+
+    path: String,
+
+    loggerType: String,
+
+    codes: {
+        statusCode: Number,
+        errorCode: String
     },
-    userID: {
-        type: String
-    },
-    userIP: {
-        type: String
-    },
-    path: {
-        type: String
-    },
-    loggerType: {
-        type: String
-    },
-    method: {
-        type: String
-    },
-    timestamp: {
-        type: Number
-    },
+    method: String,
+
+    timestamp: Number
 })
 
 module.exports = mongoose.model("loggers", loggerSchema)

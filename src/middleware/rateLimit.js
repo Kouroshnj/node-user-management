@@ -13,7 +13,7 @@ const errorHandler = (message, request) => {
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    limit: 2, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+    limit: 2,
     message: controllerMessages.TOO_MANY_REQUESTS,
     handler(req, res, next) {
         next(errorHandler(this.message, req))

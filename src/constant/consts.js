@@ -27,9 +27,8 @@ exports.controllerMessages = {
     PHONENUMBER_DELETE_SUCCESSFUL: "phoneNumber successfully deleted",
     SEND_FILE_ERROR: "sending file error!",
     FORMAT_ERROR: "format must be jpg or png",
-    URL_PARAMS: "Url param didn't provided!",
     MONGO_METHOD_ERROR: "method process failed",
-    TOO_MANY_REQUESTS: "Too many attemps, please try again later"
+    TOO_MANY_REQUESTS: "Too many attempts, please try again later"
 }
 
 exports.errorCodes = {

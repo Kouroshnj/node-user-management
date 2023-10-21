@@ -1,33 +1,40 @@
 const userModel = require("../models/users")
 const userTokens = require("../models/userTokens")
 const { hashingPassword, comparePass } = require("../utils/hashAndComparePass")
-const UserService = require("../services/user.service")
-const TokenService = require("../services/token.service")
-const JwtHandler = require("../utils/jwtUtils")
 const DuplicateError = require("../error/duplicate.error")
 const InvalidCredentials = require("../error/userExistence.error")
 const CollectionMethodsError = require("../error/collectionMethods.error")
 const ImageFormatError = require("../error/imageFormat.error")
 const ImageExistence = require("../error/imageExistence.error")
 const DeleteImageError = require("../error/deleteImage.error")
+const UserService = require("../services/user.service")
+const TokenService = require("../services/token.service")
+const JwtHandler = require("../utils/jwtUtils")
 const meta = require("../constant/meta")
 const path = require("path");
 const fs = require("fs")
 const { statusCodes, controllerMessages } = require("../constant/consts")
 const { imagesDirectory } = require(`../../config/${process.env.NODE_ENV}`)
-const sendOKInputs = require("../utils/sendOKUtils")
+const { sendOKInputs } = require("../utils/loggerInputs")
 
 
 const userService = new UserService(userModel)
 const tokenService = new TokenService(userTokens)
 const authManagement = new JwtHandler()
+
 class UserController {
+
+    constructor(userService, tokenService, authManagement) {
+        this.userService = userService
+        this.tokenService = tokenService
+        this.authManagement = authManagement
+    }
 
     signUp = async (req, res, next) => {
         try {
-            const user = await userService.createDocument(req.body)
-            const token = await authManagement.generateAuthToken(user)
-            await tokenService.createDocument({ token, userId: user.userId })
+            const user = await this.userService.createDocument(req.body)
+            const token = await this.authManagement.generateAuthToken(user)
+            await this.tokenService.createDocument({ token, userId: user.userId })
             return res.sendOK({
                 returnValue: {
                     userInfo: this.#userInfoData(user),
@@ -48,14 +55,14 @@ class UserController {
             const { password, ...body } = req.body
             const query = { ...body }
 
-            const user = await userService.findOne(query)
+            const user = await this.userService.findOne(query)
 
             await this.#checkUserExistence(user)
 
             await comparePass(password, user.password)
 
-            const token = await authManagement.generateAuthToken(user)
-            await tokenService.createDocument({ token, userId: user.userId })
+            const token = await this.authManagement.generateAuthToken(user)
+            await this.tokenService.createDocument({ token, userId: user.userId })
             res.sendOK({
                 returnValue: {
                     userInfo: this.#userInfoData(user),
@@ -73,7 +80,7 @@ class UserController {
     logOut = async (req, res, next) => {
         try {
             const query = { token: req.sessions.token }
-            const deleteOneResult = await tokenService.deleteOne(query)
+            const deleteOneResult = await this.tokenService.deleteOne(query)
             await this.#checkModifiedCount(deleteOneResult.deletedCount)
             res.sendOK({
                 returnValue: {
@@ -93,7 +100,7 @@ class UserController {
         try {
             const select = "firstName lastName parent phoneNumber nationalCode userId avatars"
             const query = { userId: req.sessions.userId }
-            const user = await userService.findOne(query, select)
+            const user = await this.userService.findOne(query, select)
             await this.#checkUserExistence(user)
             res.sendOK({
                 returnValue: {
@@ -116,7 +123,7 @@ class UserController {
             delete req.body.phoneNumber
             const setQuery = { userId }
             const setOperation = { $set: req.body }
-            await userService.updateOne(setQuery, setOperation)
+            await this.userService.updateOne(setQuery, setOperation)
             res.sendOK({
                 returnValue: {
                     message: controllerMessages.UPDATE_SUCCESS,
@@ -137,7 +144,7 @@ class UserController {
         try {
             const pullQuery = { userId: req.sessions.userId }
             const pullOperation = { $pull: { phoneNumber: { $in: req.body.phoneNumber } } }
-            await userService.updateOne(pullQuery, pullOperation)
+            await this.userService.updateOne(pullQuery, pullOperation)
             res.sendOK({
                 returnValue: {
                     message: controllerMessages.PHONENUMBER_DELETE_SUCCESSFUL
@@ -167,8 +174,8 @@ class UserController {
             const newHashedPassword = await hashingPassword(newPassword)
 
             const operation = { $set: { password: newHashedPassword } }
-            await userService.updateOne(query, operation)
-            await tokenService.deleteMany(query)
+            await this.userService.updateOne(query, operation)
+            await this.tokenService.deleteMany(query)
             res.sendOK({
                 returnValue: {
                     message: controllerMessages.CHANGE_PASSWORD_SUCCESSFUL
@@ -188,7 +195,7 @@ class UserController {
             await this.#checkFileFormat(req.file)
             const query = { userId: req.sessions.userId }
             const operation = { $push: { avatars: req.file.originalname } }
-            await userService.findOneAndUpdate(query, operation)
+            await this.userService.findOneAndUpdate(query, operation)
             res.sendOK({
                 returnValue: {
                     message: controllerMessages.SET_IMAGE_SUCCESSFUL
@@ -209,10 +216,10 @@ class UserController {
             const query = { userId }
             const fileName = req.params.fileName
             const select = "avatars"
-            const user = await userService.findOne(query, select)
+            const user = await this.userService.findOne(query, select)
             await this.#checkUserImageExistence(user, fileName)
             const operation = { $pull: { avatars: fileName } }
-            await userService.updateOne(query, operation)
+            await this.userService.updateOne(query, operation)
             this.#unlinkImage(imagesDirectory.directory, userId, fileName, res, next)
         } catch (error) {
             error.userId = req.sessions.userId
@@ -224,7 +231,7 @@ class UserController {
         try {
             const query = { userId: req.sessions.userId }
             const select = "userId avatars"
-            const user = await userService.findOne(query, select)
+            const user = await this.userService.findOne(query, select)
             const fileName = req.params.fileName
             await this.#checkUserImageExistence(user, fileName)
             const root = path.resolve(imagesDirectory.directory, user.userId, fileName)
@@ -303,10 +310,12 @@ class UserController {
         if ("phoneNumber" in body) {
             const pushQuery = { userId, phoneNumber: { $nin: body.phoneNumber } }
             const pushOperation = { $push: { phoneNumber: body.phoneNumber } }
-            await userService.updateOne(pushQuery, pushOperation)
+            await this.userService.updateOne(pushQuery, pushOperation)
         }
     }
 
 }
 
-module.exports = UserController
+const userController = new UserController(userService, tokenService, authManagement)
+
+module.exports = userController
