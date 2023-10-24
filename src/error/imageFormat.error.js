@@ -6,8 +6,8 @@ class ImageFormatError extends customErrorHandling {
     constructor() {
         super(
             CONTROLLER_MESSAGES.FORMAT_ERROR,
-            STATUSCODES.NOT_ACCESPTABLE,
-            ERROR_CODES.NOT_ACCESPTABLE
+            STATUSCODES.UNSUPPORTED_MEDIA_TYPE,
+            ERROR_CODES.UNSUPPORTED_MEDIA_TYPE
         )
     }
 }

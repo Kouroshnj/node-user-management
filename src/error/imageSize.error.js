@@ -6,8 +6,8 @@ class ImageSize extends customErrorHandling {
     constructor(userId) {
         super(
             CONTROLLER_MESSAGES.IMAGE_SIZE,
-            STATUSCODES.BAD_REQUEST,
-            ERROR_CODES.BAD_REQUEST,
+            STATUSCODES.PAYLOAD_TOO_LARGE,
+            ERROR_CODES.PAYLOAD_TOO_LARGE,
         )
         this.userId = userId
     }

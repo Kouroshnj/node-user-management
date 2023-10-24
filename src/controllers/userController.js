@@ -245,6 +245,7 @@ class UserController {
                 }
             })
         } catch (error) {
+            error.userId = req.sessions.userId
             next(error)
         }
     }
