@@ -16,7 +16,7 @@ const auth = async function (req, res, next) {
         const query = { userId: tokenPayload._userId }
         const userToken = await tokenMethods.findOne(query)
         if (!userToken?.userId) {
-            return factoryErrorInstance.factory("tokenExistence")
+            throw factoryErrorInstance.factory("tokenExistence")
         }
 
         req.sessions = {

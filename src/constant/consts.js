@@ -26,6 +26,7 @@ exports.CONTROLLER_MESSAGES = {
     DELETE_IMAGE_ERROR: "image deleting unsuccessful",
     PHONENUMBER_DELETE_SUCCESSFUL: "phoneNumber successfully deleted",
     SEND_FILE_ERROR: "sending file error!",
+    IMAGE_SIZE: "File is too large",
     FORMAT_ERROR: "format must be jpg or png",
     MONGO_METHOD_ERROR: "method operation failed",
     TOO_MANY_REQUESTS: "Too many attempts, please try again later"

@@ -1,5 +1,6 @@
 const multer = require("multer")
 const path = require("path")
+const factoryErrorInstance = require("../error/factoryError")
 const { imagesDirectory, uploadImage } = require(`../../config/${process.env.NODE_ENV}`)
 const fs = require("fs")
 
@@ -17,23 +18,27 @@ const checkUserFileExist = (path) => {
 }
 
 const storage = multer.diskStorage({
-    destination: async function (req, file, cb) {
+    destination: async (req, file, cb) => {
         const userId = req.sessions.userId
+        const size = parseInt(req.headers["content-length"])
         const userImageDirectory = path.resolve(imagesDirectory.directory, userId)
         const isFileExist = checkUserFileExist(userImageDirectory)
         if (!isFileExist) {
             fs.mkdirSync(path.resolve(userImageDirectory))
         }
-        cb(null, userImageDirectory);
+        if (size > uploadImage.sizeLimitation) {
+            return cb(factoryErrorInstance.factory("imageSize", undefined, userId))
+        }
+        return cb(null, userImageDirectory);
     },
-    filename: function (req, file, cb) {
-        cb(null, file.originalname);
-    },
+    // filename: function (req, file, cb) {
+    //     cb(null, file.originalname);
+    // },
 });
 
+
 const upload = multer({
-    storage: storage,
-    limits: { fileSize: uploadImage.sizeLimitation },
+    storage,
     fileFilter(req, file, cb) {
         if (!file.originalname.match(/\.(jpg|png)/)) {
             file.originalname = undefined
@@ -42,6 +47,8 @@ const upload = multer({
         return cb(undefined, file.originalname)
     }
 });
+
+
 
 
 module.exports = upload

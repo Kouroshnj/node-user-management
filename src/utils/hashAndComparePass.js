@@ -13,7 +13,7 @@ async function comparePass(oldPassword, oldHashedPassword) {
     const isValid = await bcrypt.compare(oldPassword, oldHashedPassword)
 
     if (!isValid) {
-        return factoryErrorInstance.factory("userExistence")
+        throw factoryErrorInstance.factory("userExistence")
         // throw new EmailOrPasswordWrong()
     }
 }

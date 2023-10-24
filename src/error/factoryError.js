@@ -1,15 +1,15 @@
 const CollectionMethodsError = require("./collectionMethods.error");
 const DeleteImageError = require("./deleteImage.error");
 const DuplicateError = require("./duplicate.error");
-const ImageExistence = require("./imageExistence.error");
 const ImageFormatError = require("./imageFormat.error");
 const ImageUploadSizeError = require("./imageUploadSize.error");
 const SchemaValidationError = require("./schemaValidation.error");
 const TokenExistenceError = require("./tokenExistence.error");
 const InvalidCredentials = require("./userExistence.error");
+const ImageSize = require("./imageSize.error")
 
 class FactoryError {
-    factory(type, message) {
+    factory(type, message, userId) {
         if (type === "userExistence") {
             throw new InvalidCredentials
         }
@@ -17,7 +17,7 @@ class FactoryError {
             throw new TokenExistenceError
         }
         if (type === "duplicate") {
-            throw new DuplicateError(message)
+            return new DuplicateError(message)
         }
         if (type === "schemaValidation") {
             throw new SchemaValidationError
@@ -25,11 +25,11 @@ class FactoryError {
         if (type === "imageUploadSize") {
             throw new ImageUploadSizeError
         }
-        if (type === "imageExistence") {
-            throw new ImageExistence
-        }
         if (type === "imageFormat") {
             throw new ImageFormatError
+        }
+        if (type === "imageSize") {
+            return new ImageSize(userId)
         }
         if (type === "collection") {
             throw new CollectionMethodsError

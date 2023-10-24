@@ -1,27 +1,19 @@
 const userModel = require("../models/users")
 const userTokens = require("../models/userTokens")
 const { hashingPassword, comparePass } = require("../utils/hashAndComparePass")
-const DuplicateError = require("../error/duplicate.error")
-const InvalidCredentials = require("../error/userExistence.error")
-const CollectionMethodsError = require("../error/collectionMethods.error")
-const ImageFormatError = require("../error/imageFormat.error")
-const ImageExistence = require("../error/imageExistence.error")
-const DeleteImageError = require("../error/deleteImage.error")
 const UserService = require("../services/user.service")
 const TokenService = require("../services/token.service")
 const JwtHandler = require("../utils/jwtUtils")
-const generateMetaInformation = require("../constant/meta")
 const path = require("path");
 const fs = require("fs")
-const { STATUSCODES, CONTROLLER_MESSAGES, ERROR_CODES, LOG_LEVELS } = require("../constant/consts")
+const { CONTROLLER_MESSAGES } = require("../constant/consts")
 const factoryErrorInstance = require("../error/factoryError")
 const { imagesDirectory } = require(`../../config/${process.env.NODE_ENV}`)
 const { sendOKInputs } = require("../utils/loggerInputs")
-const { getUnixTimestamp } = require("../utils/getDate")
-const LoggerHandler = require("../utils/loggerManagement")
+const ImageExistence = require("../error/imageExistence.error")
 
 
-const loggerHandler = new LoggerHandler()
+
 const userService = new UserService(userModel)
 const tokenService = new TokenService(userTokens)
 const authManagement = new JwtHandler()
@@ -245,10 +237,13 @@ class UserController {
             const select = "userId avatars"
             const user = await this.userService.findOne(query, select)
             const fileName = req.params.fileName
-            // await this.#checkUserImageExistence(user, fileName)
+            await this.#checkUserImageExistence(user, fileName)
             const root = path.resolve(imagesDirectory.directory, user.userId, fileName)
-            const sendFile = res.sendFile(root)
-            console.log(sendFile);
+            res.sendFile(root, (error) => {
+                if (error) {
+                    next(new ImageExistence())
+                }
+            })
         } catch (error) {
             next(error)
         }
@@ -276,10 +271,10 @@ class UserController {
     #duplicateError = async (error) => {
         const IsServerError = await this.#mongoServerError(error.code, error.keyValue)
         if (IsServerError.condition) {
-            throw factoryErrorInstance.factory("duplicate", IsServerError.error)
+            return factoryErrorInstance.factory("duplicate", IsServerError.error)
             // return new DuplicateError(IsServerError.error)
         } else {
-            throw factoryErrorInstance.factory("duplicate", error.message)
+            return factoryErrorInstance.factory("duplicate", error.message)
             // return new DuplicateError(error.message)
         }
     }
@@ -309,13 +304,13 @@ class UserController {
             const imagePath = path.resolve(imageDirectory, userId, fileName)
             await fs.promises.unlink(imagePath)
         } catch (error) {
-            return factoryErrorInstance.factory("deleteImage")
+            throw factoryErrorInstance.factory("deleteImage")
         }
     }
 
     #checkModifiedCount = async (modifiedCount) => {
         if (modifiedCount === 0) {
-            return factoryErrorInstance.factory("collection")
+            throw factoryErrorInstance.factory("collection")
             // throw new CollectionMethodsError()
         }
     }
@@ -328,30 +323,6 @@ class UserController {
         }
     }
 
-    #sendFile = async (root, response) => {
-        const statusCode = STATUSCODES.NOT_FOUND
-        const errorCode = ERROR_CODES.NOT_FOUND
-        const timestamp = getUnixTimestamp()
-        return response.sendFile(root, (error) => {
-            if (error) {
-                response.status(statusCode).send({
-                    data: CONTROLLER_MESSAGES.UNAVAILABE_IMAGE,
-                    meta: generateMetaInformation(errorCode, timestamp)
-                })
-                loggerHandler.storeAndDisplayLog({
-                    level: LOG_LEVELS.error,
-                    message: "an error occured while sending the file with response",
-                    path: "/users/api/v1/profile/image",
-                    method: "GET",
-                    codes: {
-                        statusCode,
-                        errorCode
-                    },
-                    timestamp
-                })
-            }
-        })
-    }
 }
 
 const userController = new UserController(userService, tokenService, authManagement)
