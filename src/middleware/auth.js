@@ -1,7 +1,8 @@
 const TokenMethods = require("../services/token.service")
 const JwtHandler = require("../utils/jwtUtils")
 const userTokens = require("../models/userTokens")
-const TokenExistenceError = require("../error/tokenExistence.error")
+// const TokenExistenceError = require("../error/tokenExistence.error")
+const factoryErrorInstance = require("../error/factoryError")
 
 
 const tokenMethods = new TokenMethods(userTokens)
@@ -15,7 +16,7 @@ const auth = async function (req, res, next) {
         const query = { userId: tokenPayload._userId }
         const userToken = await tokenMethods.findOne(query)
         if (!userToken?.userId) {
-            throw new TokenExistenceError()
+            return factoryErrorInstance.factory("tokenExistence")
         }
 
         req.sessions = {

@@ -10,14 +10,18 @@ const DeleteImageError = require("../error/deleteImage.error")
 const UserService = require("../services/user.service")
 const TokenService = require("../services/token.service")
 const JwtHandler = require("../utils/jwtUtils")
-const meta = require("../constant/meta")
+const generateMetaInformation = require("../constant/meta")
 const path = require("path");
 const fs = require("fs")
-const { STATUSCODES, CONTROLLER_MESSAGES } = require("../constant/consts")
+const { STATUSCODES, CONTROLLER_MESSAGES, ERROR_CODES, LOG_LEVELS } = require("../constant/consts")
+const factoryErrorInstance = require("../error/factoryError")
 const { imagesDirectory } = require(`../../config/${process.env.NODE_ENV}`)
 const { sendOKInputs } = require("../utils/loggerInputs")
+const { getUnixTimestamp } = require("../utils/getDate")
+const LoggerHandler = require("../utils/loggerManagement")
 
 
+const loggerHandler = new LoggerHandler()
 const userService = new UserService(userModel)
 const tokenService = new TokenService(userTokens)
 const authManagement = new JwtHandler()
@@ -98,7 +102,7 @@ class UserController {
 
     userInfo = async (req, res, next) => {
         try {
-            const select = "firstName lastName parent phoneNumber nationalCode userId avatars"
+            const select = "firstName lastName email parent phoneNumber nationalCode userId avatars"
             const query = { userId: req.sessions.userId }
             const user = await this.userService.findOne(query, select)
             await this.#checkUserExistence(user)
@@ -220,7 +224,15 @@ class UserController {
             await this.#checkUserImageExistence(user, fileName)
             const operation = { $pull: { avatars: fileName } }
             await this.userService.updateOne(query, operation)
-            this.#unlinkImage(imagesDirectory.directory, userId, fileName, res, next)
+            await this.#unlinkImage(imagesDirectory.directory, userId, fileName)
+            res.sendOK({
+                returnValue: {
+                    message: CONTROLLER_MESSAGES.DELETE_IMAGE_SUCCESSFUL
+                },
+                message: CONTROLLER_MESSAGES.DELETE_IMAGE_SUCCESSFUL,
+                userID: userId,
+                ...sendOKInputs(req)
+            })
         } catch (error) {
             error.userId = req.sessions.userId
             next(error)
@@ -233,15 +245,11 @@ class UserController {
             const select = "userId avatars"
             const user = await this.userService.findOne(query, select)
             const fileName = req.params.fileName
-            await this.#checkUserImageExistence(user, fileName)
+            // await this.#checkUserImageExistence(user, fileName)
             const root = path.resolve(imagesDirectory.directory, user.userId, fileName)
-            res.sendFile(root, function (err) {
-                if (err) {
-                    next(new ImageExistence())
-                }
-            })
+            const sendFile = res.sendFile(root)
+            console.log(sendFile);
         } catch (error) {
-            error.userId = req.sessions.userId
             next(error)
         }
     }
@@ -250,36 +258,43 @@ class UserController {
         return {
             firstName: user.firstName,
             lastName: user.lastName,
+            email: user.email,
             parent: user.parent,
             phoneNumber: user.phoneNumber,
-            nationalCode: user.nationalCode
+            nationalCode: user.nationalCode,
+            avatars: user.avatars
         }
     }
 
     #checkUserExistence = async (user) => {
         if (!user?.userId) {
-            throw new InvalidCredentials()
+            throw factoryErrorInstance.factory("userExistence")
+            // throw new InvalidCredentials()
         }
     }
 
     #duplicateError = async (error) => {
         const IsServerError = await this.#mongoServerError(error.code, error.keyValue)
         if (IsServerError.condition) {
-            return new DuplicateError(IsServerError.error)
+            throw factoryErrorInstance.factory("duplicate", IsServerError.error)
+            // return new DuplicateError(IsServerError.error)
         } else {
-            return new DuplicateError(error.message)
+            throw factoryErrorInstance.factory("duplicate", error.message)
+            // return new DuplicateError(error.message)
         }
     }
 
     #checkUserImageExistence = async (user, fileName) => {
         if (!user.avatars.includes(fileName) || user.avatars.length === 0) {
-            throw new ImageExistence()
+            throw factoryErrorInstance.factory("imageExistence")
+            // throw new ImageExistence()
         }
     }
 
     #checkFileFormat = async (file) => {
         if (file === undefined) {
-            throw new ImageFormatError()
+            throw factoryErrorInstance.factory("imageFormat")
+            // throw new ImageFormatError()
         }
     }
 
@@ -289,20 +304,19 @@ class UserController {
         }
         return false
     }
-    #unlinkImage = async (imageDirectory, userId, fileName, response, next) => {
-        const imagePath = path.resolve(imageDirectory, userId, fileName)
-        fs.unlink(imagePath, (error) => {
-            if (error) {
-                return next(new DeleteImageError())
-            }
-            response.status(STATUSCODES.OK).send({ data: CONTROLLER_MESSAGES.DELETE_IMAGE_SUCCESSFUL, meta })
-        })
-
+    #unlinkImage = async (imageDirectory, userId, fileName) => {
+        try {
+            const imagePath = path.resolve(imageDirectory, userId, fileName)
+            await fs.promises.unlink(imagePath)
+        } catch (error) {
+            return factoryErrorInstance.factory("deleteImage")
+        }
     }
 
-    #checkModifiedCount = async (modifiedCount, userId) => {
+    #checkModifiedCount = async (modifiedCount) => {
         if (modifiedCount === 0) {
-            throw new CollectionMethodsError()
+            return factoryErrorInstance.factory("collection")
+            // throw new CollectionMethodsError()
         }
     }
 
@@ -314,6 +328,30 @@ class UserController {
         }
     }
 
+    #sendFile = async (root, response) => {
+        const statusCode = STATUSCODES.NOT_FOUND
+        const errorCode = ERROR_CODES.NOT_FOUND
+        const timestamp = getUnixTimestamp()
+        return response.sendFile(root, (error) => {
+            if (error) {
+                response.status(statusCode).send({
+                    data: CONTROLLER_MESSAGES.UNAVAILABE_IMAGE,
+                    meta: generateMetaInformation(errorCode, timestamp)
+                })
+                loggerHandler.storeAndDisplayLog({
+                    level: LOG_LEVELS.error,
+                    message: "an error occured while sending the file with response",
+                    path: "/users/api/v1/profile/image",
+                    method: "GET",
+                    codes: {
+                        statusCode,
+                        errorCode
+                    },
+                    timestamp
+                })
+            }
+        })
+    }
 }
 
 const userController = new UserController(userService, tokenService, authManagement)

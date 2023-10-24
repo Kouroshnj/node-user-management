@@ -6,8 +6,8 @@ class DeleteImageError extends customErrorHandling {
     constructor() {
         super(
             CONTROLLER_MESSAGES.DELETE_IMAGE_ERROR,
-            STATUSCODES.INTERNAL_SERVER_ERROR,
-            ERROR_CODES.INTERNAL_SERVER_ERROR
+            STATUSCODES.NOT_FOUND,
+            ERROR_CODES.NOT_FOUND
         )
     }
 }

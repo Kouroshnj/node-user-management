@@ -8,7 +8,7 @@ mongoose.connect(
 )
 
 mongoose.connection.on("open", () => {
-    console.log(`connected to the database at time: \n ${getIsoDate()}, \n at port: ${process.env.PORT}`)
+    console.log(`connected to the database at time: \n ${getIsoDate()}, \n at port: ${process.env.MONGODB_PORT}`)
 })
 
 mongoose.connection.on("error", (error) => {

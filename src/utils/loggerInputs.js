@@ -28,8 +28,8 @@ const setErrorLogInputs = (userID, error, request) => {
         path: request.path,
         loggerType: "Error",
         codes: {
-            statusCode: error.statusCode,
-            errorCode: error.errorCode
+            statusCode: error.statusCode || 500,
+            errorCode: error.errorCode || "INTERNAL_SERVER_ERROR"
         },
         method: request.method,
         timestamp: getUnixTimestamp()
