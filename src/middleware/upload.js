@@ -31,6 +31,10 @@ const storage = multer.diskStorage({
         }
         return cb(null, userImageDirectory);
     },
+    filename: async (req, file, cb) => {
+        cb(null, file.originalname);
+    },
+
 });
 
 
