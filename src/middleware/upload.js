@@ -26,14 +26,11 @@ const storage = multer.diskStorage({
         if (!isFileExist) {
             fs.mkdirSync(path.resolve(userImageDirectory))
         }
-        if (size > uploadImage.sizeLimitation) {
+        if (size > uploadImage.Limitation.imageSize) {
             return cb(factoryErrorInstance.factory("imageSize", undefined, userId))
         }
         return cb(null, userImageDirectory);
     },
-    // filename: function (req, file, cb) {
-    //     cb(null, file.originalname);
-    // },
 });
 
 

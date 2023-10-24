@@ -1,17 +1,16 @@
 const userModel = require("../models/users")
 const userTokens = require("../models/userTokens")
-const { hashingPassword, comparePass } = require("../utils/hashAndComparePass")
 const UserService = require("../services/user.service")
 const TokenService = require("../services/token.service")
 const JwtHandler = require("../utils/jwtUtils")
-const path = require("path");
-const fs = require("fs")
+const ImageExistence = require("../error/imageExistence.error")
+const { hashingPassword, comparePass } = require("../utils/hashAndComparePass")
 const { CONTROLLER_MESSAGES } = require("../constant/consts")
-const factoryErrorInstance = require("../error/factoryError")
 const { imagesDirectory } = require(`../../config/${process.env.NODE_ENV}`)
 const { sendOKInputs } = require("../utils/loggerInputs")
-const ImageExistence = require("../error/imageExistence.error")
-
+const factoryErrorInstance = require("../error/factoryError")
+const path = require("path");
+const fs = require("fs")
 
 
 const userService = new UserService(userModel)
@@ -265,7 +264,6 @@ class UserController {
     #checkUserExistence = async (user) => {
         if (!user?.userId) {
             throw factoryErrorInstance.factory("userExistence")
-            // throw new InvalidCredentials()
         }
     }
 
@@ -273,24 +271,20 @@ class UserController {
         const IsServerError = await this.#mongoServerError(error.code, error.keyValue)
         if (IsServerError.condition) {
             return factoryErrorInstance.factory("duplicate", IsServerError.error)
-            // return new DuplicateError(IsServerError.error)
         } else {
             return factoryErrorInstance.factory("duplicate", error.message)
-            // return new DuplicateError(error.message)
         }
     }
 
     #checkUserImageExistence = async (user, fileName) => {
         if (!user.avatars.includes(fileName) || user.avatars.length === 0) {
             throw factoryErrorInstance.factory("imageExistence")
-            // throw new ImageExistence()
         }
     }
 
     #checkFileFormat = async (file) => {
         if (file === undefined) {
             throw factoryErrorInstance.factory("imageFormat")
-            // throw new ImageFormatError()
         }
     }
 
@@ -312,7 +306,6 @@ class UserController {
     #checkModifiedCount = async (modifiedCount) => {
         if (modifiedCount === 0) {
             throw factoryErrorInstance.factory("collection")
-            // throw new CollectionMethodsError()
         }
     }
 

@@ -1,4 +1,3 @@
-// const EmailOrPasswordWrong = require("../error/userExistence.error")
 const factoryErrorInstance = require("../error/factoryError")
 const bcrypt = require("bcryptjs")
 
@@ -14,7 +13,6 @@ async function comparePass(oldPassword, oldHashedPassword) {
 
     if (!isValid) {
         throw factoryErrorInstance.factory("userExistence")
-        // throw new EmailOrPasswordWrong()
     }
 }
 

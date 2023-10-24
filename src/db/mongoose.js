@@ -1,6 +1,6 @@
 const { database } = require(`../../config/${process.env.NODE_ENV}`)
-const mongoose = require("mongoose");
 const { getIsoDate } = require("../utils/getDate");
+const mongoose = require("mongoose");
 
 
 mongoose.connect(

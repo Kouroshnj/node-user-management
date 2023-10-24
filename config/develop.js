@@ -18,7 +18,9 @@ const imagesDirectory = {
 }
 
 const uploadImage = {
-    sizeLimitation: parseInt(process.env.IMAGE_UPLOAD_LIMIT)
+    Limitation: {
+        imageSize: parseInt(process.env.IMAGE_UPLOAD_LIMIT)
+    }
 }
 
 const loggerConfig = {
