@@ -1,8 +1,8 @@
-const customErrorHandling = require("./customError");
+const CustomErrorHandling = require("./customError");
 const { CONTROLLER_MESSAGES, STATUSCODES, ERROR_CODES } = require("../constant/consts")
 
 
-class ImageFormatError extends customErrorHandling {
+class ImageFormatError extends CustomErrorHandling {
     constructor() {
         super(
             CONTROLLER_MESSAGES.FORMAT_ERROR,

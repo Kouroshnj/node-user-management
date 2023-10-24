@@ -1,8 +1,8 @@
-const customErrorHandling = require("./customError");
+const CustomErrorHandling = require("./customError");
 const { STATUSCODES, ERROR_CODES } = require("../constant/consts")
 
 
-class SchemaValidationError extends customErrorHandling {
+class SchemaValidationError extends CustomErrorHandling {
     constructor(message) {
         super(
             message,

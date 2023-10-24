@@ -2,14 +2,14 @@ const CustomErrorHandling = require("./customError");
 const { CONTROLLER_MESSAGES, STATUSCODES, ERROR_CODES } = require("../constant/consts")
 
 
-class DeleteImageError extends CustomErrorHandling {
+class FileExistence extends CustomErrorHandling {
     constructor() {
         super(
-            CONTROLLER_MESSAGES.DELETE_IMAGE_ERROR,
+            CONTROLLER_MESSAGES.CHECK_USER_FILE_EXISTENCE,
             STATUSCODES.NOT_FOUND,
-            ERROR_CODES.NOT_FOUND
+            ERROR_CODES.NOT_FOUND,
         )
     }
 }
 
-module.exports = DeleteImageError
+module.exports = FileExistence

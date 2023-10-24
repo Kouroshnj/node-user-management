@@ -1,6 +1,6 @@
 const { getUnixTimestamp } = require("../utils/getDate")
 
-class customErrorHandling extends Error {
+class CustomErrorHandling extends Error {
     constructor(message, statusCode, errorCode) {
         super(message)
         this.statusCode = statusCode || 500
@@ -11,4 +11,4 @@ class customErrorHandling extends Error {
     }
 }
 
-module.exports = customErrorHandling
+module.exports = CustomErrorHandling

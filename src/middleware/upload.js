@@ -13,7 +13,7 @@ const checkUserFileExist = (path) => {
         }
         return true
     } catch (error) {
-        throw new Error("this file doesn't exist.")
+        throw factoryErrorInstance.factory("fileExistence")
     }
 }
 

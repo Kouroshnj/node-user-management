@@ -1,8 +1,8 @@
-const customErrorHandling = require("./customError")
+const CustomErrorHandling = require("./customError")
 const { CONTROLLER_MESSAGES, STATUSCODES, ERROR_CODES } = require("../constant/consts")
 
 
-class InvalidCredentials extends customErrorHandling {
+class InvalidCredentials extends CustomErrorHandling {
     constructor() {
         super(
             CONTROLLER_MESSAGES.INVALID_CREDENTIALS,
