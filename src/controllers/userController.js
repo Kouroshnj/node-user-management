@@ -240,7 +240,7 @@ class UserController {
             const root = path.resolve(imagesDirectory.directory, user.userId, fileName)
             res.sendFile(root, (error) => {
                 if (error) {
-                    next(new ImageExistence())
+                    next(new ImageExistence(user.userId))
                 }
             })
         } catch (error) {
