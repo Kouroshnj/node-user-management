@@ -22,7 +22,7 @@ exports.CONTROLLER_MESSAGES = {
     UNAVAILABE_IMAGE: "User image unavailable",
     GET_PROFILE_SUCCESSFUL: "User got the profile successfuly",
     CHANGE_PASSWORD_SUCCESSFUL: "Password successfuly changed",
-    CHECK_USER_FILE_EXISTENCE: "Check user file existence error",
+    SET_IMAGE_ERROR: "Set image process failed",
     SET_IMAGE_SUCCESSFUL: "Image sets successfuly",
     INVALID_CREDENTIALS: "Invalid credentials",
     DELETE_IMAGE_SUCCESSFUL: "Image successfuly deleted",

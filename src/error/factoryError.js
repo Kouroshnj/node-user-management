@@ -3,7 +3,7 @@ const DeleteImageError = require("./deleteImage.error");
 const DuplicateError = require("./duplicate.error");
 const ImageFormatError = require("./imageFormat.error");
 const ImageExistence = require("./imageExistence.error")
-const fileExistence = require("../error/fileExistence.error")
+const SetImageError = require("./setImage.error")
 const SchemaValidationError = require("./schemaValidation.error");
 const TokenExistenceError = require("./tokenExistence.error");
 const InvalidCredentials = require("./userExistence.error");
@@ -38,8 +38,8 @@ class FactoryError {
         if (type === "deleteImage") {
             throw new DeleteImageError
         }
-        if (type === "fileExistence") {
-            throw new fileExistence
+        if (type === "setImage") {
+            return new SetImageError
         }
     }
 }

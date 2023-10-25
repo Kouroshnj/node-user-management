@@ -1,11 +1,12 @@
 const multer = require("multer")
 const path = require("path")
+const fileExistence = require("../error/setImage.error")
 const factoryErrorInstance = require("../error/factoryError")
 const { imagesDirectory, uploadImage } = require(`../../config/${process.env.NODE_ENV}`)
 const fs = require("fs")
 
 
-const checkUserFileExist = (path) => {
+const checkUserFileExist = async (path) => {
     try {
         const doesExist = fs.existsSync(path)
         if (!doesExist) {
@@ -13,23 +14,27 @@ const checkUserFileExist = (path) => {
         }
         return true
     } catch (error) {
-        throw factoryErrorInstance.factory("fileExistence")
+        console.log(error);
     }
 }
 
 const storage = multer.diskStorage({
     destination: async (req, file, cb) => {
-        const userId = req.sessions.userId
-        const size = parseInt(req.headers["content-length"])
-        const userImageDirectory = path.resolve(imagesDirectory.directory, userId)
-        const isFileExist = checkUserFileExist(userImageDirectory)
-        if (!isFileExist) {
-            fs.mkdirSync(path.resolve(userImageDirectory))
+        try {
+            const userId = req.sessions.userId
+            const size = parseInt(req.headers["content-length"])
+            const userImageDirectory = path.resolve(imagesDirectory.directory, userId)
+            const isFileExist = await checkUserFileExist(userImageDirectory)
+            if (!isFileExist) {
+                fs.mkdirSync(path.resolve(userImageDirectory))
+            }
+            if (size > uploadImage.Limitation.imageSize) {
+                return cb(factoryErrorInstance.factory("imageSize", undefined, userId))
+            }
+            return cb(null, userImageDirectory);
+        } catch (error) {
+            return cb(factoryErrorInstance.factory("setImage"))
         }
-        if (size > uploadImage.Limitation.imageSize) {
-            return cb(factoryErrorInstance.factory("imageSize", undefined, userId))
-        }
-        return cb(null, userImageDirectory);
     },
     filename: async (req, file, cb) => {
         cb(null, file.originalname);
