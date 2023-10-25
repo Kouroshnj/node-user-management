@@ -2,7 +2,7 @@ const requestDetails = require("./requestDetails")
 const { getUnixTimestamp } = require("./getDate")
 const { LOG_LEVELS, STATUSCODES, ERROR_CODES } = require("../constant/consts")
 
-const sendOKInputs = (request) => {
+const setSendOKInputs = (request) => {
     return {
         level: LOG_LEVELS.successful,
         userIP: request.ip,
@@ -38,6 +38,6 @@ const setErrorLogInputs = (userID, error, request) => {
 
 
 module.exports = {
-    sendOKInputs,
+    setSendOKInputs,
     setErrorLogInputs
 }

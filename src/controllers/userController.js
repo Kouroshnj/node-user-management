@@ -7,7 +7,7 @@ const ImageExistence = require("../error/imageExistence.error")
 const { hashingPassword, comparePass } = require("../utils/hashAndComparePass")
 const { CONTROLLER_MESSAGES } = require("../constant/consts")
 const { imagesDirectory } = require(`../../config/${process.env.NODE_ENV}`)
-const { sendOKInputs } = require("../utils/loggerInputs")
+const { setSendOKInputs } = require("../utils/loggerInputs")
 const factoryErrorInstance = require("../error/factoryError")
 const path = require("path");
 const fs = require("fs")
@@ -37,7 +37,7 @@ class UserController {
                 },
                 message: CONTROLLER_MESSAGES.SIGNUP_SUCCESSFUL,
                 userID: user.userId,
-                ...sendOKInputs(req)
+                ...setSendOKInputs(req)
             })
         } catch (error) {
             const duplicate = await this.#duplicateError(error)
@@ -65,7 +65,7 @@ class UserController {
                 },
                 message: CONTROLLER_MESSAGES.LOGIN_SUCCESSFUL,
                 userID: user.userId,
-                ...sendOKInputs(req)
+                ...setSendOKInputs(req)
             })
         } catch (error) {
             next(error)
@@ -83,7 +83,7 @@ class UserController {
                 },
                 message: CONTROLLER_MESSAGES.USER_LOG_OUT_SUCCESSFUL,
                 userID: req.sessions.userId,
-                ...sendOKInputs(req)
+                ...setSendOKInputs(req)
             })
         } catch (error) {
             error.userId = req.sessions.userId
@@ -103,7 +103,7 @@ class UserController {
                 },
                 message: CONTROLLER_MESSAGES.GET_PROFILE_SUCCESSFUL,
                 userID: user.userId,
-                ...sendOKInputs(req)
+                ...setSendOKInputs(req)
             })
         } catch (error) {
             error.userId = req.sessions.userId
@@ -125,7 +125,7 @@ class UserController {
                 },
                 message: CONTROLLER_MESSAGES.UPDATE_SUCCESS,
                 userID: userId,
-                ...sendOKInputs(req)
+                ...setSendOKInputs(req)
 
             })
         } catch (error) {
@@ -146,7 +146,7 @@ class UserController {
                 },
                 message: CONTROLLER_MESSAGES.PHONENUMBER_DELETE_SUCCESSFUL,
                 userID: req.sessions.userId,
-                ...sendOKInputs(req)
+                ...setSendOKInputs(req)
             })
         } catch (error) {
             error.userId = req.sessions.userId
@@ -177,7 +177,7 @@ class UserController {
                 },
                 message: CONTROLLER_MESSAGES.CHANGE_PASSWORD_SUCCESSFUL,
                 userID: user.userId,
-                ...sendOKInputs(req)
+                ...setSendOKInputs(req)
             })
         } catch (error) {
             error.userId = req.sessions.userId
@@ -197,7 +197,7 @@ class UserController {
                 },
                 message: CONTROLLER_MESSAGES.SET_IMAGE_SUCCESSFUL,
                 userID: req.sessions.userId,
-                ...sendOKInputs(req)
+                ...setSendOKInputs(req)
             })
         } catch (error) {
             error.userId = req.sessions.userId
@@ -222,7 +222,7 @@ class UserController {
                 },
                 message: CONTROLLER_MESSAGES.DELETE_IMAGE_SUCCESSFUL,
                 userID: userId,
-                ...sendOKInputs(req)
+                ...setSendOKInputs(req)
             })
         } catch (error) {
             error.userId = req.sessions.userId
