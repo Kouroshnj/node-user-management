@@ -2,7 +2,7 @@ const userModel = require("../models/users")
 const userTokens = require("../models/userTokens")
 const UserService = require("../services/user.service")
 const TokenService = require("../services/token.service")
-const JwtHandler = require("../utils/jwtUtils")
+const AuthTokenManager = require("../utils/jwtUtils")
 const ImageExistence = require("../error/imageExistence.error")
 const { hashingPassword, comparePass } = require("../utils/hashAndComparePass")
 const { CONTROLLER_MESSAGES } = require("../constant/consts")
@@ -15,7 +15,7 @@ const fs = require("fs")
 
 const userService = new UserService(userModel)
 const tokenService = new TokenService(userTokens)
-const authManagement = new JwtHandler()
+const authManagement = new AuthTokenManager()
 
 class UserController {
 
@@ -272,7 +272,7 @@ class UserController {
         if (IsServerError.condition) {
             return factoryErrorInstance.factory("duplicate", IsServerError.error)
         } else {
-            return factoryErrorInstance.factory("duplicate", error.message)
+            return factoryErrorInstance.factory("server", error.message)
         }
     }
 

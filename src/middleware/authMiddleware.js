@@ -1,11 +1,11 @@
 const TokenMethods = require("../services/token.service")
-const JwtHandler = require("../utils/jwtUtils")
 const userTokens = require("../models/userTokens")
 const factoryErrorInstance = require("../error/factory.error")
+const AuthTokenManager = require("../utils/jwtUtils")
 
 
 const tokenMethods = new TokenMethods(userTokens)
-const authManagement = new JwtHandler()
+const authManagement = new AuthTokenManager()
 
 
 const auth = async function (req, res, next) {
