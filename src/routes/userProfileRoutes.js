@@ -1,9 +1,9 @@
 const express = require("express");
-const auth = require("../middleware/auth")
-const setLimitter = require("../middleware/rateLimit")
+const auth = require("../middleware/authMiddleware")
+const setLimitter = require("../middleware/rateLimitMiddleware")
 const userController = require("../controllers/userController")
-const validation = require("../middleware/validate")
-const upload = require("../middleware/upload");
+const validation = require("../middleware/validateMiddleware")
+const upload = require("../middleware/uploadMiddleware");
 
 
 const router = express.Router()

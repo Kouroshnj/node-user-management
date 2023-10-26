@@ -1,6 +1,6 @@
 const multer = require("multer")
 const path = require("path")
-const factoryErrorInstance = require("../error/factoryError")
+const factoryErrorInstance = require("../error/factory.error")
 const { imagesDirectory, uploadImage } = require(`../../config/${process.env.NODE_ENV}`)
 const fs = require("fs")
 

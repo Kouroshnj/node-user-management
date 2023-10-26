@@ -1,4 +1,4 @@
-const factoryErrorInstance = require("../error/factoryError")
+const factoryErrorInstance = require("../error/factory.error")
 const bcrypt = require("bcryptjs")
 
 async function hashingPassword(password) {

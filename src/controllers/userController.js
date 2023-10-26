@@ -8,7 +8,7 @@ const { hashingPassword, comparePass } = require("../utils/hashAndComparePass")
 const { CONTROLLER_MESSAGES } = require("../constant/consts")
 const { imagesDirectory } = require(`../../config/${process.env.NODE_ENV}`)
 const { setSendOKInputs } = require("../utils/loggerInputs")
-const factoryErrorInstance = require("../error/factoryError")
+const factoryErrorInstance = require("../error/factory.error")
 const path = require("path");
 const fs = require("fs")
 

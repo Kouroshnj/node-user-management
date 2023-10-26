@@ -1,7 +1,7 @@
 const TokenMethods = require("../services/token.service")
 const JwtHandler = require("../utils/jwtUtils")
 const userTokens = require("../models/userTokens")
-const factoryErrorInstance = require("../error/factoryError")
+const factoryErrorInstance = require("../error/factory.error")
 
 
 const tokenMethods = new TokenMethods(userTokens)
