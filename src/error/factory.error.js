@@ -32,7 +32,7 @@ class FactoryError {
         if (type === "imageSize") {
             return new ImageSize(userId)
         }
-        if (type === "collection") {
+        if (type === "collectionMethod") {
             throw new CollectionMethodsError
         }
         if (type === "deleteImage") {

@@ -305,7 +305,7 @@ class UserController {
 
     #checkModifiedCount = async (modifiedCount) => {
         if (modifiedCount === 0) {
-            throw factoryErrorInstance.factory("collection")
+            throw factoryErrorInstance.factory("collectionMethod")
         }
     }
 
