@@ -2,7 +2,7 @@ const userModel = require("../models/users")
 const userTokens = require("../models/userTokens")
 const UserService = require("../services/user.service")
 const TokenService = require("../services/token.service")
-const AuthTokenManager = require("../utils/jwtUtils")
+const AuthTokenManager = require("../utils/authTokenManager")
 const ImageExistence = require("../error/imageExistence.error")
 const { hashingPassword, comparePass } = require("../utils/hashAndComparePass")
 const { CONTROLLER_MESSAGES } = require("../constant/consts")
@@ -15,20 +15,20 @@ const fs = require("fs")
 
 const userService = new UserService(userModel)
 const tokenService = new TokenService(userTokens)
-const authManagement = new AuthTokenManager()
+const authTokenManager = new AuthTokenManager()
 
 class UserController {
 
-    constructor(userService, tokenService, authManagement) {
+    constructor(userService, tokenService, authTokenManager) {
         this.userService = userService
         this.tokenService = tokenService
-        this.authManagement = authManagement
+        this.authTokenManager = authTokenManager
     }
 
     signUp = async (req, res, next) => {
         try {
             const user = await this.userService.createDocument(req.body)
-            const token = await this.authManagement.generateAuthToken(user)
+            const token = await this.authTokenManager.generateAuthToken(user)
             await this.tokenService.createDocument({ token, userId: user.userId })
             return res.sendOK({
                 returnValue: {
@@ -56,7 +56,7 @@ class UserController {
 
             await comparePass(password, user.password)
 
-            const token = await this.authManagement.generateAuthToken(user)
+            const token = await this.authTokenManager.generateAuthToken(user)
             await this.tokenService.createDocument({ token, userId: user.userId })
             res.sendOK({
                 returnValue: {
@@ -319,6 +319,6 @@ class UserController {
 
 }
 
-const userController = new UserController(userService, tokenService, authManagement)
+const userController = new UserController(userService, tokenService, authTokenManager)
 
 module.exports = userController

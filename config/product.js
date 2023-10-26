@@ -8,7 +8,7 @@ const database = {
     applicationPort: parseInt(process.env.PORT) || 3000
 }
 
-const authenticate = {
+const tokenDetails = {
     jwtExpiration: parseInt(process.env.JWT_EXPIRATION),
     jwtSecretKey: process.env.JWT_SECRET_KEY
 }
@@ -33,7 +33,7 @@ const loggerConfig = {
 
 module.exports = {
     database,
-    authenticate,
+    tokenDetails,
     imagesDirectory,
     uploadImage,
     loggerConfig
