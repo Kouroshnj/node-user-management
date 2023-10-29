@@ -1,7 +1,7 @@
 const { rateLimit } = require("express-rate-limit")
 const { CONTROLLER_MESSAGES, STATUSCODES, ERROR_CODES } = require("../constant/consts")
 
-const errorHandler = (message, request) => {
+const limitterErrorHandler = (message, request) => {
     return {
         message,
         statusCode: STATUSCODES.TOO_MANY_REQUESTS,
@@ -16,7 +16,7 @@ const limiter = rateLimit({
     limit: 15,
     message: CONTROLLER_MESSAGES.TOO_MANY_REQUESTS,
     handler(req, res, next) {
-        next(errorHandler(this.message, req))
+        next(limitterErrorHandler(this.message, req))
     }
 })
 

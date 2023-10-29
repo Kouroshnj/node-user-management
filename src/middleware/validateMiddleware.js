@@ -1,6 +1,5 @@
 const Schemas = require("../validations/joiValidation");
-const SchemaValidationError = require("../error/schemaValidation.error")
-
+const factoryErrorInstance = require("../error/factory.error")
 
 
 const validation = (schema) => {
@@ -10,7 +9,7 @@ const validation = (schema) => {
             await Schemas[schema].validateAsync(values);
             next()
         } catch (error) {
-            next(new SchemaValidationError(error.message))
+            next(factoryErrorInstance.factory("schemaValidation", error.message))
         }
     }
 }

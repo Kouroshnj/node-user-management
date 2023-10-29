@@ -20,7 +20,7 @@ app.use(helmet())
 
 app.use(sendOKMiddleware)
 
-app.use("/users/api/v1/", routeAggregator)
+app.use("/users/api/v1", routeAggregator)
 
 app.use(errorHandlingMiddleware)
 

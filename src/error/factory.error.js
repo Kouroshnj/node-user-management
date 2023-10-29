@@ -22,7 +22,7 @@ class FactoryError {
             return new DuplicateError(message)
         }
         if (type === "schemaValidation") {
-            throw new SchemaValidationError
+            return new SchemaValidationError(message)
         }
         if (type === "imageFormat") {
             throw new ImageFormatError
