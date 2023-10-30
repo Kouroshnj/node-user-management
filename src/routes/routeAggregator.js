@@ -1,6 +1,6 @@
 const express = require("express");
 const userProfileRoutes = require("./userProfileRoutes")
-const userAuthRoutes = require("../routes/userAuthRoutes")
+const userAuthRoutes = require("./userAuthRoutes")
 
 const router = express()
 

@@ -5,7 +5,6 @@ const database = {
     mongoDBDatabaseName: process.env.MONGODB_DATABASE_NAME,
     mongoDBHostName: process.env.MONGODB_HOST_NAME,
     mongoDBPort: process.env.MONGODB_PORT || "27017",
-    applicationPort: parseInt(process.env.PORT) || 3000
 }
 
 const tokenDetails = {
@@ -18,14 +17,18 @@ const imagesDirectory = {
 }
 
 const uploadImage = {
-    Limitation: {
-        imageSize: parseInt(process.env.IMAGE_UPLOAD_LIMIT)
+    limitation: {
+        imageSize: parseInt(process.env.IMAGE_UPLOAD_SIZE_LIMIT)
     }
 }
 
 const loggerConfig = {
     showLogInTerminal: true,
     storeLogInMongo: true
+}
+
+const applicationComponents = {
+    applicationPort: parseInt(process.env.PORT) || 3000
 }
 
 
@@ -36,5 +39,6 @@ module.exports = {
     tokenDetails,
     imagesDirectory,
     uploadImage,
-    loggerConfig
+    loggerConfig,
+    applicationComponents
 }

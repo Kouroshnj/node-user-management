@@ -4,7 +4,7 @@ const UserService = require("../services/user.service")
 const TokenService = require("../services/token.service")
 const AuthTokenManager = require("../utils/authTokenManager")
 const ImageExistence = require("../error/imageExistence.error")
-const { hashingPassword, comparePass } = require("../utils/hashAndComparePass")
+const { hashingPassword, comparePass } = require("../utils/passwordUtils")
 const { CONTROLLER_MESSAGES } = require("../constant/consts")
 const { imagesDirectory } = require(`../../config/${process.env.NODE_ENV}`)
 const { setSendOKInputs } = require("../utils/loggerInputs")
@@ -12,10 +12,6 @@ const factoryErrorInstance = require("../error/factory.error")
 const path = require("path");
 const fs = require("fs")
 
-
-const userService = new UserService(userModel)
-const tokenService = new TokenService(userTokens)
-const authTokenManager = new AuthTokenManager()
 
 class UserController {
 
@@ -32,7 +28,7 @@ class UserController {
             await this.tokenService.createDocument({ token, userId: user.userId })
             return res.sendOK({
                 returnValue: {
-                    userInfo: this.#userInfoData(user),
+                    userInfo: this.#userInfoData(user.toObject()),
                     token
                 },
                 message: CONTROLLER_MESSAGES.SIGNUP_SUCCESSFUL,
@@ -93,7 +89,7 @@ class UserController {
 
     userInfo = async (req, res, next) => {
         try {
-            const select = "firstName lastName email parent phoneNumber nationalCode userId avatars"
+            const select = "firstName lastName email parent phoneNumber nationalCode avatars userId"
             const query = { userId: req.sessions.userId }
             const user = await this.userService.findOne(query, select)
             await this.#checkUserExistence(user)
@@ -160,7 +156,7 @@ class UserController {
             const query = { userId: req.sessions.userId }
             const select = "password userId"
 
-            const user = await userService.findOne(query, select)
+            const user = await this.userService.findOne(query, select)
             await this.#checkUserExistence(user)
             const oldHashedPassword = user.password
 
@@ -208,11 +204,11 @@ class UserController {
     deleteImage = async (req, res, next) => {
         try {
             const userId = req.sessions.userId
-            const query = { userId }
             const fileName = req.params.fileName
+            const query = { userId, avatars: { $in: fileName } }
             const select = "avatars"
             const user = await this.userService.findOne(query, select)
-            await this.#checkUserImageExistence(user, fileName)
+            await this.#checkUserImageExistence(user)
             const operation = { $pull: { avatars: fileName } }
             await this.userService.updateOne(query, operation)
             await this.#unlinkImage(imagesDirectory.directory, userId, fileName)
@@ -232,11 +228,12 @@ class UserController {
 
     getImage = async (req, res, next) => {
         try {
-            const query = { userId: req.sessions.userId }
+            const userId = req.sessions.userId
+            const fileName = req.params.fileName
+            const query = { userId, avatars: { $in: fileName } }
             const select = "userId avatars"
             const user = await this.userService.findOne(query, select)
-            const fileName = req.params.fileName
-            await this.#checkUserImageExistence(user, fileName)
+            await this.#checkUserImageExistence(user)
             const root = path.resolve(imagesDirectory.directory, user.userId, fileName)
             res.sendFile(root, (error) => {
                 if (error) {
@@ -250,41 +247,35 @@ class UserController {
     }
 
     #userInfoData = (user) => {
-        return {
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            parent: user.parent,
-            phoneNumber: user.phoneNumber,
-            nationalCode: user.nationalCode,
-            avatars: user.avatars
-        }
+        const { password, _id, userId, __v, ...userInfo } = user
+        return userInfo
     }
 
     #checkUserExistence = async (user) => {
         if (!user?.userId) {
-            throw factoryErrorInstance.factory("userExistence")
+            throw factoryErrorInstance.createError("userExistence")
         }
     }
 
     #duplicateError = async (error) => {
         const IsServerError = await this.#mongoServerError(error.code, error.keyValue)
         if (IsServerError.condition) {
-            return factoryErrorInstance.factory("duplicate", IsServerError.error)
+            return factoryErrorInstance.createError("duplicateError", IsServerError.error)
+            // return factoryErrorInstance.factory("duplicate", IsServerError.error)
         } else {
-            return factoryErrorInstance.factory("server", error.message)
+            return factoryErrorInstance.createError("serverError", error.message)
         }
     }
 
-    #checkUserImageExistence = async (user, fileName) => {
-        if (!user.avatars.includes(fileName) || user.avatars.length === 0) {
-            throw factoryErrorInstance.factory("imageExistence")
+    #checkUserImageExistence = async (user) => {
+        if (user == null) {
+            throw factoryErrorInstance.createError("imageExistence")
         }
     }
 
     #checkFileFormat = async (file) => {
         if (file === undefined) {
-            throw factoryErrorInstance.factory("imageFormat")
+            throw factoryErrorInstance.createError("imageFormatError")
         }
     }
 
@@ -299,13 +290,13 @@ class UserController {
             const imagePath = path.resolve(imageDirectory, userId, fileName)
             await fs.promises.unlink(imagePath)
         } catch (error) {
-            throw factoryErrorInstance.factory("deleteImage")
+            return factoryErrorInstance.createError("deleteImageError")
         }
     }
 
     #checkModifiedCount = async (modifiedCount) => {
         if (modifiedCount === 0) {
-            throw factoryErrorInstance.factory("collectionMethod")
+            throw factoryErrorInstance.createError("collectionError")
         }
     }
 
@@ -319,6 +310,8 @@ class UserController {
 
 }
 
-const userController = new UserController(userService, tokenService, authTokenManager)
+const userService = new UserService(userModel)
+const tokenService = new TokenService(userTokens)
+const authTokenManager = new AuthTokenManager()
 
-module.exports = userController
+module.exports = new UserController(userService, tokenService, authTokenManager)

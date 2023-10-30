@@ -11,6 +11,29 @@ const ServerError = require("./server.error")
 const ImageSize = require("./imageSize.error")
 
 class FactoryError {
+
+    constructor() {
+        this.errorTypes = {
+            userExistence: InvalidCredentials,
+            tokenExistence: TokenExistenceError,
+            collectionError: CollectionMethodsError,
+            deleteImageError: DeleteImageError,
+            duplicateError: DuplicateError,
+            imageFormatError: ImageFormatError,
+            imageExistence: ImageExistence,
+            setImageError: SetImageError,
+            schemaValidationError: SchemaValidationError,
+            serverError: ServerError,
+            imageSizeError: ImageSize
+        }
+    }
+
+    createError(type, message) {
+        const createErrorType = this.errorTypes[type]
+        if (createErrorType) {
+            return new createErrorType(message)
+        }
+    }
     factory(type, message, userId) {
         if (type === "userExistence") {
             throw new InvalidCredentials
@@ -46,6 +69,7 @@ class FactoryError {
             return new ServerError(message)
         }
     }
+
 }
 
 const factoryErrorInstance = new FactoryError

@@ -6,8 +6,8 @@ class SchemaValidationError extends CustomErrorHandling {
     constructor(message) {
         super(
             message,
-            STATUSCODES.NOT_ACCESPTABLE,
-            ERROR_CODES.NOT_ACCESPTABLE
+            STATUSCODES.NOT_ACCEPTABLE,
+            ERROR_CODES.NOT_ACCEPTABLE
         )
     }
 }

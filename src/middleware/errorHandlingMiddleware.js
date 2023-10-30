@@ -11,7 +11,8 @@ const errorHandlingMiddleware = async (error, req, res, next) => {
     const userID = error.userId || undefined
     const errorLogInputs = setErrorLogInputs(userID, error, req)
 
-    loggerHandler.storeAndDisplayLog(errorLogInputs)
+    loggerHandler.storeLogInDB(errorLogInputs)
+    loggerHandler.showLogInTerminal(errorLogInputs)
 
     return res.status(statusCode).send({
         data: error.message,

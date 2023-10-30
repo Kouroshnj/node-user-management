@@ -1,6 +1,6 @@
 const mongoose = require("mongoose")
 const { v4: uuidv4 } = require('uuid');
-const { hashingPassword } = require("../utils/hashAndComparePass")
+const { hashingPassword } = require("../utils/passwordUtils")
 
 
 const userSchema = new mongoose.Schema({
@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
 
     lastName: String,
 
-    age: String,
+    age: Number,
 
     parent: String,
 

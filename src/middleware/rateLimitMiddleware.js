@@ -13,7 +13,7 @@ const limitterErrorHandler = (message, request) => {
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    limit: 15,
+    limit: 2,
     message: CONTROLLER_MESSAGES.TOO_MANY_REQUESTS,
     handler(req, res, next) {
         next(limitterErrorHandler(this.message, req))

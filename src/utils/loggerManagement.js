@@ -6,16 +6,16 @@ const loggerModel = require("../models/logger")
 const loggerServiceInstance = new LoggerService(loggerModel)
 
 class LoggerHandler {
-    storeAndDisplayLog = async (inputLogs) => {
-        try {
-            if (loggerConfig.storeLogInMongo) {
-                loggerServiceInstance.createDocument(inputLogs)
-            }
-            if (loggerConfig.showLogInTerminal) {
-                console.log(this.#terminalLogInputs(inputLogs))
-            }
-        } catch (error) {
-            console.log("logger Failed in storeAndDisplayLog", error)
+
+    storeLogInDB = async (inputLogs) => {
+        if (loggerConfig.storeLogInMongo) {
+            loggerServiceInstance.createDocument(inputLogs)
+        }
+    }
+
+    showLogInTerminal = async (inputLogs) => {
+        if (loggerConfig.showLogInTerminal) {
+            console.log(this.#terminalLogInputs(inputLogs))
         }
     }
 

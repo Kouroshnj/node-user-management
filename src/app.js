@@ -3,14 +3,14 @@ require("./db/mongoose")
 const helmet = require("helmet")
 const express = require("express")
 const cors = require("cors")
-const { database } = require(`../config/${process.env.NODE_ENV}`)
+const { applicationComponents } = require(`../config/${process.env.NODE_ENV}`)
 const errorHandlingMiddleware = require("./middleware/errorHandlingMiddleware")
 const sendOKMiddleware = require("./middleware/sendOKMiddleware")
 
 const routeAggregator = require("./routes/routeAggregator")
 
 
-const PORT = database.applicationPort
+const PORT = applicationComponents.applicationPort
 
 const app = express()
 
