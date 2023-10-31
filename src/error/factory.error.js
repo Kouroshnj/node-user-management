@@ -28,48 +28,12 @@ class FactoryError {
         }
     }
 
-    createError(type, message) {
+    createError(type, classArgument) {
         const createErrorType = this.errorTypes[type]
         if (createErrorType) {
-            return new createErrorType(message)
+            return new createErrorType(classArgument)
         }
     }
-    factory(type, message, userId) {
-        if (type === "userExistence") {
-            throw new InvalidCredentials
-        }
-        if (type === "tokenExistence") {
-            throw new TokenExistenceError
-        }
-        if (type === "duplicate") {
-            return new DuplicateError(message)
-        }
-        if (type === "schemaValidation") {
-            return new SchemaValidationError(message)
-        }
-        if (type === "imageFormat") {
-            throw new ImageFormatError
-        }
-        if (type === "imageExistence") {
-            throw new ImageExistence
-        }
-        if (type === "imageSize") {
-            return new ImageSize(userId)
-        }
-        if (type === "collectionMethod") {
-            throw new CollectionMethodsError
-        }
-        if (type === "deleteImage") {
-            throw new DeleteImageError
-        }
-        if (type === "setImage") {
-            return new SetImageError
-        }
-        if (type === "server") {
-            return new ServerError(message)
-        }
-    }
-
 }
 
 const factoryErrorInstance = new FactoryError

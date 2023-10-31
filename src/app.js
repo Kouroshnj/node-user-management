@@ -7,6 +7,7 @@ const { applicationComponents } = require(`../config/${process.env.NODE_ENV}`)
 const errorHandlingMiddleware = require("./middleware/errorHandlingMiddleware")
 const sendOKMiddleware = require("./middleware/sendOKMiddleware")
 
+
 const routeAggregator = require("./routes/routeAggregator")
 
 
@@ -21,6 +22,7 @@ app.use(helmet())
 app.use(sendOKMiddleware)
 
 app.use("/users/api/v1", routeAggregator)
+
 
 app.use(errorHandlingMiddleware)
 

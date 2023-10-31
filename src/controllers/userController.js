@@ -1,8 +1,3 @@
-const userModel = require("../models/users")
-const userTokens = require("../models/userTokens")
-const UserService = require("../services/user.service")
-const TokenService = require("../services/token.service")
-const AuthTokenManager = require("../utils/authTokenManager")
 const ImageExistence = require("../error/imageExistence.error")
 const { hashingPassword, comparePass } = require("../utils/passwordUtils")
 const { CONTROLLER_MESSAGES } = require("../constant/consts")
@@ -19,6 +14,11 @@ class UserController {
         this.userService = userService
         this.tokenService = tokenService
         this.authTokenManager = authTokenManager
+        if (!UserController.instance) {
+            UserController.instance = this
+        }
+
+        return UserController.instance
     }
 
     signUp = async (req, res, next) => {
@@ -36,7 +36,7 @@ class UserController {
                 ...setSendOKInputs(req)
             })
         } catch (error) {
-            const duplicate = await this.#duplicateError(error)
+            const duplicate = await this.#handleMongoDBError(error)
             next(duplicate)
         }
     }
@@ -126,7 +126,7 @@ class UserController {
             })
         } catch (error) {
             error.userId = req.sessions.userId
-            const duplicate = await this.#duplicateError(error)
+            const duplicate = await this.#handleMongoDBError(error)
             next(duplicate)
         }
     }
@@ -257,7 +257,7 @@ class UserController {
         }
     }
 
-    #duplicateError = async (error) => {
+    #handleMongoDBError = async (error) => {
         const IsServerError = await this.#mongoServerError(error.code, error.keyValue)
         if (IsServerError.condition) {
             return factoryErrorInstance.createError("duplicateError", IsServerError.error)
@@ -307,11 +307,6 @@ class UserController {
             await this.userService.updateOne(pushQuery, pushOperation)
         }
     }
-
 }
 
-const userService = new UserService(userModel)
-const tokenService = new TokenService(userTokens)
-const authTokenManager = new AuthTokenManager()
-
-module.exports = new UserController(userService, tokenService, authTokenManager)
+module.exports = UserController

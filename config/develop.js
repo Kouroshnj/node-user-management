@@ -1,10 +1,18 @@
 require("dotenv").config()
 
 const database = {
+    mongoDBUser: process.env.MONGODB_USER,
+    mongoDBPwd: process.env.MONGODB_PWD,
     mongoDBUrl: process.env.MONGODB_URL,
     mongoDBDatabaseName: process.env.MONGODB_DATABASE_NAME,
     mongoDBHostName: process.env.MONGODB_HOST_NAME,
     mongoDBPort: process.env.MONGODB_PORT || "27017",
+    options: {
+        maxPoolSize: parseInt(process.env.MONGODB_POOL_SIZE),
+        socketTimeoutMS: parseInt(process.env.MONGODB_SOCKET_TOMEOUT),
+        useNewUrlParser: process.env.MONGODB_NEW_URL_PARSER,
+        useUnifiedTopology: process.env.MONGODB_UNIFIED_TOPOLOGY,
+    }
 }
 
 const tokenDetails = {
