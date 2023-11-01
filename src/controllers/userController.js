@@ -71,8 +71,8 @@ class UserController {
     logOut = async (req, res, next) => {
         try {
             const query = { token: req.sessions.token }
-            const deleteOneResult = await this.tokenService.deleteOne(query)
-            await this.#checkModifiedCount(deleteOneResult.deletedCount)
+            const deleteResult = await this.tokenService.deleteOne(query)
+            await this.#checkDeletedCount(deleteResult, CONTROLLER_MESSAGES.USER_LOG_OUT_ERROR)
             res.sendOK({
                 returnValue: {
                     message: CONTROLLER_MESSAGES.USER_LOG_OUT_SUCCESSFUL,
@@ -206,11 +206,9 @@ class UserController {
             const userId = req.sessions.userId
             const fileName = req.params.fileName
             const query = { userId, avatars: { $in: fileName } }
-            const select = "avatars"
-            const user = await this.userService.findOne(query, select)
-            await this.#checkUserImageExistence(user)
             const operation = { $pull: { avatars: fileName } }
-            await this.userService.updateOne(query, operation)
+            const updateResult = await this.userService.findOneAndUpdate(query, operation)
+            await this.#checkModifiedCount(updateResult, CONTROLLER_MESSAGES.DELETE_IMAGE_ERROR)
             await this.#unlinkImage(imagesDirectory.directory, userId, fileName)
             res.sendOK({
                 returnValue: {
@@ -294,9 +292,15 @@ class UserController {
         }
     }
 
-    #checkModifiedCount = async (modifiedCount) => {
-        if (modifiedCount === 0) {
-            throw factoryErrorInstance.createError("collectionError")
+    #checkModifiedCount = async (updateResult, message) => {
+        if (updateResult == null || updateResult.modifiedCount === 0) {
+            throw factoryErrorInstance.createError("collectionError", message)
+        }
+    }
+
+    #checkDeletedCount = async (deleteResult, message) => {
+        if (deleteResult == null || deleteResult.deletedCount === 0) {
+            throw factoryErrorInstance.createError("collectionError", message)
         }
     }
 

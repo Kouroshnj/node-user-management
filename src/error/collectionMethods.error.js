@@ -3,9 +3,9 @@ const { CONTROLLER_MESSAGES, STATUSCODES, ERROR_CODES } = require("../constant/c
 
 
 class CollectionMethodsError extends CustomErrorHandling {
-    constructor() {
+    constructor(message) {
         super(
-            CONTROLLER_MESSAGES.MONGO_METHOD_ERROR,
+            message,
             STATUSCODES.NOT_FOUND,
             ERROR_CODES.NOT_FOUND,
         )

@@ -18,6 +18,7 @@ exports.CONTROLLER_MESSAGES = {
     SIGNUP_SUCCESSFUL: "User successfully signed up",
     LOGIN_SUCCESSFUL: "User successfully logged in",
     USER_LOG_OUT_SUCCESSFUL: "User successfully logged out",
+    USER_LOG_OUT_ERROR: "User log out process unsuccessful",
     UPDATE_SUCCESS: "User successfully updated",
     UNAVAILABE_IMAGE: "User image unavailable",
     GET_PROFILE_SUCCESSFUL: "User got the profile successfully",
@@ -31,7 +32,6 @@ exports.CONTROLLER_MESSAGES = {
     SEND_FILE_ERROR: "Sending file error!",
     IMAGE_SIZE: "File is too large",
     FORMAT_ERROR: "Format must be jpg or png",
-    MONGO_METHOD_ERROR: "Method operation failed",
     TOO_MANY_REQUESTS: "Too many attempts, please try again later"
 }
 
