@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const user = database.mongoDBUser ? database.mongoDBUser + ":" : ""
 const pwd = database.mongoDBPwd ? database.mongoDBPwd + "@" : ""
 const hostName = database.mongoDBHostName ? database.mongoDBHostName + ":" : ""
-const dataBasePort = database.mongoDBPort ? database.mongoDBPort + "/" : ""
+const dataBasePort = database.mongoDBPort + "/"
 const dataBaseName = database.mongoDBDatabaseName
 
 mongoose.connect(
