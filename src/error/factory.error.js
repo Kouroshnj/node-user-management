@@ -1,4 +1,4 @@
-const CollectionMethodsError = require("./collectionMethods.error");
+const MongoDBOperationErrorHandler = require("./collectionMethods.error");
 const DeleteImageError = require("./deleteImage.error");
 const DuplicateError = require("./duplicate.error");
 const ImageFormatError = require("./imageFormat.error");
@@ -16,7 +16,7 @@ class FactoryError {
         this.errorTypes = {
             userExistence: InvalidCredentials,
             tokenExistence: TokenExistenceError,
-            collectionError: CollectionMethodsError,
+            MongoDBOperation: MongoDBOperationErrorHandler,
             deleteImageError: DeleteImageError,
             duplicateError: DuplicateError,
             imageFormatError: ImageFormatError,

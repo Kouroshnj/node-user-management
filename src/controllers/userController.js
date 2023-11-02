@@ -72,7 +72,7 @@ class UserController {
         try {
             const query = { token: req.sessions.token }
             const deleteResult = await this.tokenService.deleteOne(query)
-            await this.#checkDeletedCount(deleteResult, CONTROLLER_MESSAGES.USER_LOG_OUT_ERROR)
+            await this.#checkDeleteResult(deleteResult, CONTROLLER_MESSAGES.USER_LOG_OUT_ERROR)
             res.sendOK({
                 returnValue: {
                     message: CONTROLLER_MESSAGES.USER_LOG_OUT_SUCCESSFUL,
@@ -186,7 +186,7 @@ class UserController {
             await this.#checkFileFormat(req.file)
             const query = { userId: req.sessions.userId }
             const operation = { $push: { avatars: req.file.originalname } }
-            await this.userService.findOneAndUpdate(query, operation)
+            await this.userService.updateOne(query, operation)
             res.sendOK({
                 returnValue: {
                     message: CONTROLLER_MESSAGES.SET_IMAGE_SUCCESSFUL
@@ -208,7 +208,7 @@ class UserController {
             const query = { userId, avatars: { $in: fileName } }
             const operation = { $pull: { avatars: fileName } }
             const updateResult = await this.userService.findOneAndUpdate(query, operation)
-            await this.#checkModifiedCount(updateResult, CONTROLLER_MESSAGES.DELETE_IMAGE_ERROR)
+            await this.#checkUpdateResult(updateResult, CONTROLLER_MESSAGES.DELETE_IMAGE_ERROR)
             await this.#unlinkImage(imagesDirectory.directory, userId, fileName)
             res.sendOK({
                 returnValue: {
@@ -256,10 +256,9 @@ class UserController {
     }
 
     #handleMongoDBError = async (error) => {
-        const IsServerError = await this.#mongoServerError(error.code, error.keyValue)
+        const IsServerError = await this.#checkDuplicateError(error.code, error.keyValue)
         if (IsServerError.condition) {
             return factoryErrorInstance.createError("duplicateError", IsServerError.error)
-            // return factoryErrorInstance.factory("duplicate", IsServerError.error)
         } else {
             return factoryErrorInstance.createError("serverError", error.message)
         }
@@ -277,7 +276,7 @@ class UserController {
         }
     }
 
-    #mongoServerError = async (value, errorValue) => {
+    #checkDuplicateError = async (value, errorValue) => {
         if (value === 11000) {
             return { condition: true, error: `${Object.keys(errorValue)} which is ${Object.values(errorValue)}, is duplicate` }
         }
@@ -292,15 +291,15 @@ class UserController {
         }
     }
 
-    #checkModifiedCount = async (updateResult, message) => {
-        if (updateResult == null || updateResult.modifiedCount === 0) {
-            throw factoryErrorInstance.createError("collectionError", message)
+    #checkUpdateResult = async (updateResult, message) => {
+        if (updateResult == null) {
+            throw factoryErrorInstance.createError("MongoDBOperation", message)
         }
     }
 
-    #checkDeletedCount = async (deleteResult, message) => {
-        if (deleteResult == null || deleteResult.deletedCount === 0) {
-            throw factoryErrorInstance.createError("collectionError", message)
+    #checkDeleteResult = async (deleteResult, message) => {
+        if (deleteResult == null) {
+            throw factoryErrorInstance.createError("MongoDBOperation", message)
         }
     }
 

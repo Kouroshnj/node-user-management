@@ -2,7 +2,7 @@ const CustomErrorHandling = require("./customError");
 const { CONTROLLER_MESSAGES, STATUSCODES, ERROR_CODES } = require("../constant/consts")
 
 
-class CollectionMethodsError extends CustomErrorHandling {
+class MongoDBOperationErrorHandler extends CustomErrorHandling {
     constructor(message) {
         super(
             message,
@@ -12,4 +12,4 @@ class CollectionMethodsError extends CustomErrorHandling {
     }
 }
 
-module.exports = CollectionMethodsError
+module.exports = MongoDBOperationErrorHandler
