@@ -1,6 +1,5 @@
 const LoggerHandler = require("../utils/loggerManagement")
 const generateMetaInformation = require("../constant/meta")
-const { loggerConfig } = require(`../../config/${process.env.NODE_ENV}`)
 const { STATUSCODES, ERROR_CODES } = require("../constant/consts")
 
 const loggerHandler = new LoggerHandler()

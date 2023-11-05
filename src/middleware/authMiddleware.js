@@ -24,7 +24,12 @@ const auth = async function (req, res, next) {
         }
         next()
     } catch (error) {
-        next(error)
+        if (error.expiredAt) {
+            const invalidTokenError = factoryErrorInstance.createError("invalidToken", error.message)
+            next(invalidTokenError)
+        } else {
+            next(error)
+        }
     }
 }
 

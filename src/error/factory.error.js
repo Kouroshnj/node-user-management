@@ -8,13 +8,15 @@ const SchemaValidationError = require("./schemaValidation.error");
 const TokenExistenceError = require("./tokenExistence.error");
 const InvalidCredentials = require("./invalidCredentials.error");
 const ServerError = require("./server.error")
-const ImageSize = require("./imageSize.error")
+const ImageSize = require("./imageSize.error");
+const InvalidTokenError = require("./invalidToken.error");
 
 class FactoryError {
 
     constructor() {
         this.errorTypes = {
             invalidCredentials: InvalidCredentials,
+            invalidToken: InvalidTokenError,
             tokenExistence: TokenExistenceError,
             MongoDBOperation: MongoDBOperationErrorHandler,
             deleteImageError: DeleteImageError,
