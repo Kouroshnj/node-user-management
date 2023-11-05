@@ -251,7 +251,7 @@ class UserController {
 
     #checkUserExistence = async (user) => {
         if (!user?.userId) {
-            throw factoryErrorInstance.createError("userExistence")
+            throw factoryErrorInstance.createError("invalidCredentials")
         }
     }
 

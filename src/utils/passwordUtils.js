@@ -12,7 +12,7 @@ async function comparePass(oldPassword, oldHashedPassword) {
     const isValid = await bcrypt.compare(oldPassword, oldHashedPassword)
 
     if (!isValid) {
-        throw factoryErrorInstance.createError("userExistence")
+        throw factoryErrorInstance.createError("invalidCredentials")
     }
 }
 
