@@ -9,7 +9,7 @@ const validation = (schema) => {
             await Schemas[schema].validateAsync(values);
             next()
         } catch (error) {
-            next(factoryErrorInstance.factory("schemaValidation", error.message))
+            next(factoryErrorInstance.createError("schemaValidationError", error.message))
         }
     }
 }
