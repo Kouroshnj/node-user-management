@@ -2,12 +2,11 @@
   "name": "user_microservice",
   "version": "1.0.0",
   "description": "user microservice instance",
-  "main": "app.js",
+  "main": "src/app.js",
   "scripts": {
-    "check": "node check.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js",
-    "start-server": "node app.js"
+    "start": "nodemon src/app.js",
+    "start-server": "node src/app.js"
   },
   "author": "Kourosh Nejatian",
   "license": "ISC",
@@ -17,17 +16,15 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
-    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "ejs": "^3.1.9",
     "express": "^4.18.2",
-    "formidable": "^3.5.1",
+    "express-rate-limit": "^7.1.1",
+    "helmet": "^7.0.0",
     "joi": "^17.10.1",
     "jsonwebtoken": "^9.0.1",
     "mongoose": "^7.4.4",
     "multer": "^1.4.5-lts.1",
-    "nodemailer": "^6.9.4",
-    "request": "^2.88.2",
     "uuid": "^9.0.1",
     "validator": "^13.11.0"
   }
